@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexnzarov/gofu/internal/process_registry"
-	"github.com/alexnzarov/gofu/pb"
-	"github.com/alexnzarov/gofu/process"
 	"github.com/google/uuid"
+	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/process"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 

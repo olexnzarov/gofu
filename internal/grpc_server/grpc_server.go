@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/alexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/alexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
+	"github.com/olexnzarov/gofu/pb"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

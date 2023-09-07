@@ -1,4 +1,4 @@
-module github.com/alexnzarov/gofu
+module github.com/olexnzarov/gofu
 
 go 1.21.0
 

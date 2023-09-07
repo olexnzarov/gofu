@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alexnzarov/gofu/process"
+	"github.com/olexnzarov/gofu/process"
 )
 
 type ManagedProcess struct {

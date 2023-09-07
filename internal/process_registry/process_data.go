@@ -3,7 +3,7 @@ package process_registry
 import (
 	"time"
 
-	"github.com/alexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/pb"
 )
 
 type ProcessData struct {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package process_manager;
-option go_package = "github.com/alexnzarov/gofu/pb";
+option go_package = "github.com/olexnzarov/gofu/pb";
 
 import "pb/process.proto";
 import "pb/common.proto";

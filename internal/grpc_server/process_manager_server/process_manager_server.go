@@ -1,9 +1,9 @@
 package process_manager_server
 
 import (
-	"github.com/alexnzarov/gofu/internal/process_registry"
-	"github.com/alexnzarov/gofu/internal/system_directory"
-	"github.com/alexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/system_directory"
+	"github.com/olexnzarov/gofu/pb"
 	"go.uber.org/zap"
 )
 

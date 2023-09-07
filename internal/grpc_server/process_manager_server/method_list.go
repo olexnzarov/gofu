@@ -3,7 +3,7 @@ package process_manager_server
 import (
 	"context"
 
-	"github.com/alexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/pb"
 )
 
 func (s *ProcessManagerServer) List(ctx context.Context, in *pb.ListRequest) (*pb.ListReply, error) {

@@ -3,10 +3,10 @@ package grpc_server
 import (
 	"testing"
 
-	"github.com/alexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/alexnzarov/gofu/internal/process_registry"
-	"github.com/alexnzarov/gofu/internal/system_directory"
-	"github.com/alexnzarov/gofu/logger"
+	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
+	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/system_directory"
+	"github.com/olexnzarov/gofu/logger"
 )
 
 func TestServer(t *testing.T) {
