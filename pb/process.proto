@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package process;
+option go_package = "github.com/alexnzarov/gofu/pb";
+
+import "google/protobuf/duration.proto";
+
+message ProcessConfiguration {
+  message RestartPolicy {
+    bool auto_restart = 1;
+    google.protobuf.Duration delay = 2;
+    uint32 max_restarts = 3;
+  }
+
+  string name = 1;
+  string command = 2;
+  repeated string arguments = 3;
+  map<string, string> environment = 4;
+  bool persist = 5;
+  RestartPolicy restart_policy = 6;
+  string working_directory = 7;
+}
+
+message ProcessInformation {
+  message ExitState {
+    int32 code = 1; 
+    optional string error = 2;
+  }
+
+  string id = 1;
+  int64 pid = 2;
+  process.ProcessConfiguration configuration = 3;
+  optional ExitState exit_state = 4;
+  string status = 5;
+}
