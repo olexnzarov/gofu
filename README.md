@@ -19,7 +19,22 @@ make build-proto  # to compile protobuf
 make run-daemon   # to run gofu-daemon
 ```
 
+## Design
+
+_gofu-daemon_ is an application that manages the processes. It uses gRPC for communication, which should decrease the difficulty of creating alternative clients. Every process started with _gofu_ will be a child process of this daemon. 
+
+_gofu_ is a command-line utility with commands similar to `docker` or `pm2`. It lets you control the running daemon from the terminal.
+
+_gofu-web_ is an optional web interface that lets you enjoy the ease of use of graphical interfaces. It should allow you to do everything that's possible with _gofu_, but with a user-friendly interface. 
+
+### Philosophy
+
+- Modern and widely used technologies. We don't create our own protocols or use some archaic libraries. The interfaces that gofu exposes should be easily accessible and extendable.
+- Cross-platform consistency. The behavior should be the same across different operating systems.  
+- Ease of use. There should be a recipe for every possible use case that the user can copy and paste. It also entails that we shouldn't expect the user to understand what they just run, so we must build safeguards and protect them from themselves.
+- An alternative to dated utilities. We can't stop the user from using `systemd`, but we can offer a cross-platform option that might be a tad easier to use for a newbie or even an experienced user.
+
 ## License
 
-**gofu** is available under the [MIT](./LICENSE) license, allowing for free use, modification, and distribution.
+gofu is available under the [MIT](./LICENSE) license, allowing for free use, modification, and distribution.
 
