@@ -1,4 +1,4 @@
-<img src=".github/content/banner.png" />
+<picture><img src=".github/content/banner.png" /></picture>
 
 **gofu** is a process manager for any application you can think of. It allows you to keep processes alive, manage their environment, balance the load, schedule different tasks to run on system startup, and much more. It also provides an option to start a local web interface to manage the processes more easily.
 
