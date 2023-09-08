@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"go.uber.org/multierr"
 )
 
 type OutOptions struct {
@@ -80,9 +82,10 @@ func (p *Process) IsAwaited() bool {
 }
 
 func (p *Process) Close() error {
-	err := p.inner.Kill()
-	p.release()
-	return err
+	return multierr.Append(
+		p.inner.Kill(),
+		p.release(),
+	)
 }
 
 func (p *Process) Wait() (*os.ProcessState, error) {
@@ -91,15 +94,18 @@ func (p *Process) Wait() (*os.ProcessState, error) {
 }
 
 // Release closes all file descriptors and releases the resources associated with the process.
-// It ignores all errors produced by the closing functions.
-func (p *Process) release() {
-	p.stdin.Close()
-	p.stderr.Close()
-	p.stdout.Close()
+func (p *Process) release() error {
+	ioerror := multierr.Combine(
+		p.stdin.Close(),
+		p.stderr.Close(),
+		p.stdout.Close(),
+	)
 
 	if p.inner != nil {
-		p.inner.Release()
+		ioerror = multierr.Append(ioerror, p.inner.Release())
 	}
+
+	return ioerror
 }
 
 // Start starts a process with given options.
