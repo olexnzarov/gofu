@@ -28,7 +28,7 @@ func New(
 
 // GetExitState returns an exit state if process has exited, otherwise it returns nil.
 func GetExitState(p *process_registry.ManagedProcess) *pb.ProcessInformation_ExitState {
-	if exit, err := p.GetExitState(); err != nil {
+	if exit, err := p.GetExitState(); err == nil {
 		exitState := pb.ProcessInformation_ExitState{
 			Code: int32(exit.State.ExitCode()),
 		}
