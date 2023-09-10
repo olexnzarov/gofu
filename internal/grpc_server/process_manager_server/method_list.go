@@ -7,14 +7,15 @@ import (
 )
 
 func (s *ProcessManagerServer) List(ctx context.Context, in *pb.ListRequest) (*pb.ListReply, error) {
-	watchedProcesses := *s.processRegistry.Processes()
+	watchedProcesses := *s.processManager.Processes.All()
 	processes := make([]*pb.ProcessInformation, 0, len(watchedProcesses))
 
 	for _, p := range watchedProcesses {
+		data := p.Data()
 		info := &pb.ProcessInformation{
-			Id:            p.Data().Id,
+			Id:            data.Id,
 			Pid:           int64(p.Pid()),
-			Configuration: p.Data().Configuration,
+			Configuration: data.Configuration,
 			ExitState:     GetExitState(p),
 			Status:        p.Status(),
 		}

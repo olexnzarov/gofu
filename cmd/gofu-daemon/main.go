@@ -5,7 +5,7 @@ import (
 
 	"github.com/olexnzarov/gofu/internal/grpc_server"
 	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/process_manager"
 	"github.com/olexnzarov/gofu/internal/system_directory"
 	"github.com/olexnzarov/gofu/logger"
 	"go.uber.org/fx"
@@ -51,9 +51,9 @@ func main() {
 			provideDirectories,    // provides *system_directory.Config
 			grpc_server.NewConfig, // provides *grpc_server.Config
 
-			// provides *process_registry.ProcessRegistry
+			// provides *process_manager.ProcessManager
 			// requires *zap.Logger
-			process_registry.New,
+			process_manager.New,
 
 			// provides *process_manager_server.ProcessManagerServer
 			// requires *zap.Logger, *system_directory.Config, *process_registry.ProcessRegistry

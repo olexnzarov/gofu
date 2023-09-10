@@ -7,9 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/process_manager"
 	"github.com/olexnzarov/gofu/pb"
-	"github.com/olexnzarov/gofu/process"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -33,7 +32,7 @@ func (s *ProcessManagerServer) Start(ctx context.Context, in *pb.StartRequest) (
 		return nil, errors.New("configuration is expected, got nil")
 	}
 
-	processData := process_registry.ProcessData{
+	processData := process_manager.ProcessData{
 		Id: uuid.New().String(),
 	}
 
@@ -50,18 +49,13 @@ func (s *ProcessManagerServer) Start(ctx context.Context, in *pb.StartRequest) (
 		in.Configuration.RestartPolicy = &pb.ProcessConfiguration_RestartPolicy{
 			AutoRestart: false,
 			Delay:       durationpb.New(time.Duration(0)),
-			MaxRestarts: 0,
+			MaxRetries:  1,
 		}
 	}
 
 	processData.Configuration = in.Configuration
 
-	p, err := process.Start(process.StartOptions{
-		Out:         process.NewOutOptions(s.directories.LogDirectory, processData.Id),
-		Command:     in.Configuration.Command,
-		Arguments:   in.Configuration.Arguments,
-		Environment: in.Configuration.Environment,
-	})
+	mp, err := s.processManager.Start(&processData)
 
 	if err != nil {
 		return &pb.StartReply{
@@ -70,10 +64,6 @@ func (s *ProcessManagerServer) Start(ctx context.Context, in *pb.StartRequest) (
 			},
 		}, nil
 	}
-
-	// Give the process registry control over the process
-	mp := process_registry.NewManagedProcess(p, &processData)
-	s.processRegistry.Watch(mp)
 
 	return &pb.StartReply{
 		Response: &pb.StartReply_Process{

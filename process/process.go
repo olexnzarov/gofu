@@ -1,6 +1,7 @@
 package process
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -24,12 +25,12 @@ type StartOptions struct {
 }
 
 type Process struct {
-	stdin     *os.File
-	stdout    *os.File
-	stderr    *os.File
-	inner     *os.Process
-	options   *StartOptions
-	isAwaited bool
+	stdin    *os.File
+	stdout   *os.File
+	stderr   *os.File
+	inner    *os.Process
+	options  *StartOptions
+	exitCode *int
 }
 
 func NewOutOptions(outDirectory string, id string) OutOptions {
@@ -62,10 +63,11 @@ func prepareProcess(options *StartOptions) (*Process, error) {
 	}
 
 	return &Process{
-		stdin:   stdin,
-		stdout:  stdout,
-		stderr:  stderr,
-		options: options,
+		stdin:    stdin,
+		stdout:   stdout,
+		stderr:   stderr,
+		options:  options,
+		exitCode: nil,
 	}, nil
 }
 
@@ -77,10 +79,14 @@ func (p *Process) Options() *StartOptions {
 	return p.options
 }
 
-func (p *Process) IsAwaited() bool {
-	return p.isAwaited
+func (p *Process) ExitCode() (int, error) {
+	if p.exitCode == nil {
+		return 0, errors.New("process is still running")
+	}
+	return *p.exitCode, nil
 }
 
+// Close kills the process and releases all associated resources.
 func (p *Process) Close() error {
 	return multierr.Append(
 		p.inner.Kill(),
@@ -88,31 +94,20 @@ func (p *Process) Close() error {
 	)
 }
 
-func (p *Process) Wait() (*os.ProcessState, error) {
-	p.isAwaited = true
-	return p.inner.Wait()
-}
-
-// Release closes all file descriptors and releases the resources associated with the process.
+// Release closes all file descriptors.
 func (p *Process) release() error {
-	ioerror := multierr.Combine(
+	return multierr.Combine(
 		p.stdin.Close(),
 		p.stderr.Close(),
 		p.stdout.Close(),
 	)
-
-	if p.inner != nil {
-		ioerror = multierr.Append(ioerror, p.inner.Release())
-	}
-
-	return ioerror
 }
 
 // Start starts a process with given options.
-func Start(options StartOptions) (*Process, error) {
+func Start(options StartOptions) (*Process, <-chan int, error) {
 	bin, err := exec.LookPath(options.Command)
 	if err == nil && bin == "" {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Combine environment variables
@@ -131,7 +126,7 @@ func Start(options StartOptions) (*Process, error) {
 
 	process, err := prepareProcess(&options)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	attributes := os.ProcAttr{
@@ -153,9 +148,21 @@ func Start(options StartOptions) (*Process, error) {
 
 	p, err := os.StartProcess(bin, arguments, &attributes)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	process.inner = p
 
-	return process, nil
+	exitChannel := make(chan int)
+	go func() {
+		state, err := p.Wait()
+		code := -1
+		if err == nil {
+			code = state.ExitCode()
+		}
+		process.exitCode = &code
+		exitChannel <- *process.exitCode
+		close(exitChannel)
+	}()
+
+	return process, exitChannel, nil
 }

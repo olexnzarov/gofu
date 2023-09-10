@@ -1,7 +1,7 @@
 package process_manager_server
 
 import (
-	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/process_manager"
 	"github.com/olexnzarov/gofu/internal/system_directory"
 	"github.com/olexnzarov/gofu/pb"
 	"go.uber.org/zap"
@@ -9,40 +9,30 @@ import (
 
 type ProcessManagerServer struct {
 	pb.UnimplementedProcessManagerServer
-	log             *zap.Logger
-	directories     *system_directory.Config
-	processRegistry *process_registry.ProcessRegistry
+	log            *zap.Logger
+	directories    *system_directory.Config
+	processManager *process_manager.ProcessManager
 }
 
 func New(
 	log *zap.Logger,
 	directories *system_directory.Config,
-	processRegistry *process_registry.ProcessRegistry,
+	processManager *process_manager.ProcessManager,
 ) *ProcessManagerServer {
 	return &ProcessManagerServer{
-		log:             log,
-		directories:     directories,
-		processRegistry: processRegistry,
+		log:            log,
+		directories:    directories,
+		processManager: processManager,
 	}
 }
 
 // GetExitState returns an exit state if process has exited, otherwise it returns nil.
-func GetExitState(p *process_registry.ManagedProcess) *pb.ProcessInformation_ExitState {
-	if exit, err := p.GetExitState(); err == nil {
-		exitState := pb.ProcessInformation_ExitState{
-			Code: int32(exit.State.ExitCode()),
-		}
-
-		if exit.Error != nil {
-			errMessage := (*exit.Error).Error()
-			exitState.Error = &errMessage
-		} else if exitState.Code != 0 {
-			errMessage := exit.State.String()
-			exitState.Error = &errMessage
-		}
-
-		return &exitState
+func GetExitState(p *process_manager.ManagedProcess) *pb.ProcessInformation_ExitState {
+	code, err := p.ExitCode()
+	if err != nil {
+		return nil
 	}
-
-	return nil
+	return &pb.ProcessInformation_ExitState{
+		Code: int64(code),
+	}
 }

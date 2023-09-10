@@ -9,7 +9,7 @@ message ProcessConfiguration {
   message RestartPolicy {
     bool auto_restart = 1;
     google.protobuf.Duration delay = 2;
-    uint32 max_restarts = 3;
+    uint32 max_retries = 3;
   }
 
   string name = 1;
@@ -23,8 +23,7 @@ message ProcessConfiguration {
 
 message ProcessInformation {
   message ExitState {
-    int32 code = 1; 
-    optional string error = 2;
+    int64 code = 1;
   }
 
   string id = 1;

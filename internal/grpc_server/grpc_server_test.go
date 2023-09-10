@@ -4,20 +4,20 @@ import (
 	"testing"
 
 	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/olexnzarov/gofu/internal/process_registry"
+	"github.com/olexnzarov/gofu/internal/process_manager"
 	"github.com/olexnzarov/gofu/internal/system_directory"
 	"github.com/olexnzarov/gofu/logger"
 )
 
 func TestServer(t *testing.T) {
-	config := NewConfig()
-	log, _ := logger.New()
-	process_registry := process_registry.New(log)
-
 	directories := system_directory.NewConfig("gofu-test")
 	t.Cleanup(func() { directories.CleanupDirectories() })
 
-	pms := process_manager_server.New(log, directories, process_registry)
+	config := NewConfig()
+	log, _ := logger.New()
+	processManager := process_manager.New(log, directories)
+
+	pms := process_manager_server.New(log, directories, processManager)
 
 	server := New(log, config, pms)
 	t.Cleanup(server.inner.Stop)

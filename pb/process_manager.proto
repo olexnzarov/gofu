@@ -23,7 +23,25 @@ message ListReply {
   repeated process.ProcessInformation processes = 1;
 }
 
+message RestartRequest {
+  string process = 1;
+}
+
+message RestartReply {
+  optional common.Error error = 1;
+}
+
+message StopRequest {
+  string process = 1;
+}
+
+message StopReply {
+  optional common.Error error = 1;
+}
+
 service ProcessManager {
   rpc Start(StartRequest) returns (StartReply) {}
   rpc List(ListRequest) returns (ListReply) {}
+  rpc Restart(RestartRequest) returns (RestartReply) {}
+  rpc Stop(StopRequest) returns (StopReply) {}
 }
