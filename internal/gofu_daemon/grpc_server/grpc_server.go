@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server/process_manager_server"
 	"github.com/olexnzarov/gofu/pb"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -32,9 +32,13 @@ func New(
 	}
 }
 
+func (s *Server) Target() string {
+	return fmt.Sprintf(":%d", s.config.Port)
+}
+
 // Start establishes a TCP listener and serves the gRPC server on it.
 func (s *Server) Start() error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", s.config.Port))
+	listener, err := net.Listen("tcp", s.Target())
 	if err != nil {
 		return err
 	}

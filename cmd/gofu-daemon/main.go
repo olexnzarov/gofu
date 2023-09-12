@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 
-	"github.com/olexnzarov/gofu/internal/grpc_server"
-	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/olexnzarov/gofu/internal/process_manager"
-	"github.com/olexnzarov/gofu/internal/system_directory"
-	"github.com/olexnzarov/gofu/logger"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server/process_manager_server"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_manager"
+	"github.com/olexnzarov/gofu/internal/logger"
+	"github.com/olexnzarov/gofu/pkg/gofu"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -29,41 +30,26 @@ func withLogger() fx.Option {
 	})
 }
 
-func provideDirectories() (*system_directory.Config, error) {
-	config := system_directory.NewConfig("gofu")
-	return config, config.EnsureDirectories()
-}
-
-func runServer(lc fx.Lifecycle, log *zap.Logger, server *grpc_server.Server) {
-	lc.Append(fx.StartHook(server.Start))
-	lc.Append(fx.StopHook(server.Stop))
-	lc.Append(fx.StopHook(log.Sync))
+// Creates an entrypoint of the application.
+func runDaemon(lc fx.Lifecycle, daemon *gofu_daemon.Daemon) {
+	lc.Append(fx.StartHook(daemon.Start))
+	lc.Append(fx.StopHook(daemon.Stop))
 }
 
 func main() {
 	flag.Parse()
 
 	fx.New(
-		// For the sake of tracking what dependencies are provided and required,
-		// keep the comments with the actual constructors and return types up-to-date.
 		fx.Provide(
-			logger.New,            // provides *zap.Logger
-			provideDirectories,    // provides *system_directory.Config
-			grpc_server.NewConfig, // provides *grpc_server.Config
-
-			// provides *process_manager.ProcessManager
-			// requires *zap.Logger
+			logger.New,
+			gofu.NewDirectories,
 			process_manager.New,
-
-			// provides *process_manager_server.ProcessManagerServer
-			// requires *zap.Logger, *system_directory.Config, *process_registry.ProcessRegistry
 			process_manager_server.New,
-
-			// provides *grpc_server.Server
-			// requires *grpc_server.Config, *zap.Logger, *process_manager_server.ProcessManagerServer
+			grpc_server.NewConfig,
 			grpc_server.New,
+			gofu_daemon.NewDaemon,
 		),
 		withLogger(),
-		fx.Invoke(runServer),
+		fx.Invoke(runDaemon),
 	).Run()
 }

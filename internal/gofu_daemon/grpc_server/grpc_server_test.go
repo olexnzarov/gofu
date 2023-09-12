@@ -3,15 +3,14 @@ package grpc_server
 import (
 	"testing"
 
-	"github.com/olexnzarov/gofu/internal/grpc_server/process_manager_server"
-	"github.com/olexnzarov/gofu/internal/process_manager"
-	"github.com/olexnzarov/gofu/internal/system_directory"
-	"github.com/olexnzarov/gofu/logger"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server/process_manager_server"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_manager"
+	"github.com/olexnzarov/gofu/internal/logger"
+	"github.com/olexnzarov/gofu/pkg/gofu"
 )
 
 func TestServer(t *testing.T) {
-	directories := system_directory.NewConfig("gofu-test")
-	t.Cleanup(func() { directories.CleanupDirectories() })
+	directories := gofu.NewDirectories()
 
 	config := NewConfig()
 	log, _ := logger.New()

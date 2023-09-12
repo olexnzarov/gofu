@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/olexnzarov/gofu/internal/process_manager"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_manager"
 	"github.com/olexnzarov/gofu/pb"
 	"google.golang.org/protobuf/types/known/durationpb"
 )

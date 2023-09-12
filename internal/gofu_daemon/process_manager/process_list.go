@@ -61,7 +61,7 @@ func (l *ProcessList) GetByPid(pid int) (*ManagedProcess, error) {
 	defer l.processesMutex.RUnlock()
 
 	for _, p := range l.processes {
-		if inner, err := p.Inner(); err != nil && inner.Pid == pid {
+		if inner, err := p.Inner(); err == nil && inner.Pid == pid {
 			return p, nil
 		}
 	}

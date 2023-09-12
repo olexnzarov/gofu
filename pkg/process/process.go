@@ -106,9 +106,13 @@ func (p *Process) release() error {
 // Start starts a process with given options.
 func Start(options StartOptions) (*Process, <-chan int, error) {
 	bin, err := exec.LookPath(options.Command)
-	if err == nil && bin == "" {
+	if err != nil {
 		return nil, nil, err
 	}
+
+	// argv should start with the program name
+	program := strings.Fields(options.Command)[0]
+	arguments := append([]string{program}, options.Arguments...)
 
 	// Combine environment variables
 	env := os.Environ()
@@ -141,10 +145,6 @@ func Start(options StartOptions) (*Process, <-chan int, error) {
 		// Check sys_proc_attr_<os>.go files to see how it handles children on different systems.
 		Sys: newSysProcAttr(),
 	}
-
-	// argv should start with the program name
-	program := strings.Fields(options.Command)[0]
-	arguments := append([]string{program}, options.Arguments...)
 
 	p, err := os.StartProcess(bin, arguments, &attributes)
 	if err != nil {

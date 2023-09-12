@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/olexnzarov/gofu/internal/system_directory"
-	"github.com/olexnzarov/gofu/process"
+	"github.com/olexnzarov/gofu/pkg/gofu"
+	"github.com/olexnzarov/gofu/pkg/process"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +22,7 @@ const (
 
 type ManagedProcess struct {
 	log              *zap.Logger
-	directories      *system_directory.Config
+	directories      *gofu.Directories
 	data             *ProcessData
 	dataMutex        *sync.RWMutex
 	process          *process.Process
@@ -31,7 +31,7 @@ type ManagedProcess struct {
 	autoRestartTries atomic.Uint32
 }
 
-func NewManagedProcess(log *zap.Logger, directories *system_directory.Config, data *ProcessData) *ManagedProcess {
+func NewManagedProcess(log *zap.Logger, directories *gofu.Directories, data *ProcessData) *ManagedProcess {
 	return &ManagedProcess{
 		log:          log,
 		data:         data,
