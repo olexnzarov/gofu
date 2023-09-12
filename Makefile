@@ -11,6 +11,9 @@ build-daemon:
 run-daemon:
 	go run $(DAEMON_MAIN) --fx-native-logger
 
+install-gofu:
+	go install ./cmd/gofu
+
 run-grpc-ui:
 	grpcui \
 		-plaintext \

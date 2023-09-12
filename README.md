@@ -7,7 +7,7 @@
 ## Binaries
 
 - [gofu-daemon](./cmd/gofu-daemon/main.go) - a daemon that manages the processes started by it.
-- gofu - a command-line utility that lets you control the daemon.
+- [gofu](./cmd/gofu/main.go) - a command-line utility that lets you control the daemon.
 - gofu-web - a web interface that lets you control the daemon.
 
 ## Build
@@ -15,8 +15,11 @@
 As this is a work in progress, there are no detailed instructions on building or running the application locally. But you can look at the [Makefile](./Makefile) to get a good feel for how it all works.
 
 ```bash
-make build-proto  # to compile protobuf
-make run-daemon   # to run gofu-daemon
+make build-proto      # to compile protobuf
+make run-daemon       # to run gofu-daemon
+
+make install-gofu     # to build and install gofu cli
+gofu ps               # then you can use gofu like this
 ```
 
 ## Design
