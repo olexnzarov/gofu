@@ -22,8 +22,11 @@ var restartCommand = &cobra.Command{
 			return
 		}
 
+		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		defer cancel()
+
 		reply, err := client.ProcessManager.Restart(
-			gofu_cli.Timeout(RequestTimeout),
+			timeout,
 			&pb.RestartRequest{
 				Process: args[0],
 			},

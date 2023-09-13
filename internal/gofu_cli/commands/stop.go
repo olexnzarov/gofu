@@ -22,8 +22,11 @@ var stopCommand = &cobra.Command{
 			return
 		}
 
+		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		defer cancel()
+
 		reply, err := client.ProcessManager.Stop(
-			gofu_cli.Timeout(RequestTimeout),
+			timeout,
 			&pb.StopRequest{
 				Process: args[0],
 			},

@@ -36,8 +36,11 @@ var runCommand = &cobra.Command{
 			return
 		}
 
+		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		defer cancel()
+
 		reply, err := client.ProcessManager.Start(
-			gofu_cli.Timeout(RequestTimeout),
+			timeout,
 			&pb.StartRequest{
 				Configuration: &pb.ProcessConfiguration{
 					// It's safe to index the slice like that because cobra validated the arguments beforehand.

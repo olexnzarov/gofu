@@ -21,8 +21,11 @@ var psCommand = &cobra.Command{
 			return
 		}
 
+		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		defer cancel()
+
 		reply, err := client.ProcessManager.List(
-			gofu_cli.Timeout(RequestTimeout),
+			timeout,
 			&pb.ListRequest{},
 		)
 		if err != nil {

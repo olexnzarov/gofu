@@ -36,7 +36,7 @@ func Client() (*gofu.Client, error) {
 	return client, nil
 }
 
-func Timeout(timeout time.Duration) context.Context {
-	context, _ := context.WithTimeout(context.Background(), timeout)
-	return context
+func Timeout(timeout time.Duration) (context.Context, context.CancelFunc) {
+	context, cancel := context.WithTimeout(context.Background(), timeout)
+	return context, cancel
 }
