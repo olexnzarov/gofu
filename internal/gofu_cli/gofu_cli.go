@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/olexnzarov/gofu/internal/gofu_cli/output"
 	"github.com/olexnzarov/gofu/pkg/gofu"
+	"github.com/olexnzarov/gofu/pkg/output"
 	"github.com/spf13/cobra"
 )
 

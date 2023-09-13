@@ -1,4 +1,4 @@
-package output
+package outputs
 
 type TextOutput struct {
 	text string
@@ -6,10 +6,6 @@ type TextOutput struct {
 
 func Text(value string) *TextOutput {
 	return &TextOutput{text: value}
-}
-
-func (o *Output) Text(key string, value string) *Output {
-	return o.Add(key, Text(value))
 }
 
 func (o *TextOutput) Text() string {

@@ -1,4 +1,4 @@
-package output
+package outputs
 
 import (
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -8,10 +8,6 @@ import (
 
 type ProcessTableOutput struct {
 	processes []*pb.ProcessInformation
-}
-
-func (o *Output) Processes(key string, processes []*pb.ProcessInformation) *Output {
-	return o.Add(key, Processes(processes))
 }
 
 func Processes(processes []*pb.ProcessInformation) *ProcessTableOutput {

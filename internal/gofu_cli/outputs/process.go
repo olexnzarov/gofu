@@ -1,4 +1,4 @@
-package output
+package outputs
 
 import (
 	"strings"
@@ -14,10 +14,6 @@ type ProcessOutput struct {
 
 func Process(process *pb.ProcessInformation) *ProcessOutput {
 	return &ProcessOutput{process: process}
-}
-
-func (o *Output) Process(key string, process *pb.ProcessInformation) *Output {
-	return o.Add(key, Process(process))
 }
 
 func (po *ProcessOutput) Text() string {
