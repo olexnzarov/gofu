@@ -5,27 +5,33 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/olexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/output"
 	"github.com/olexnzarov/gofu/pkg/gofu"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"github.com/spf13/cobra"
 )
 
-func InternalError(explanation string, cause error) error {
-	if status, ok := status.FromError(cause); ok && status.Code() == codes.Unavailable {
-		explanation = fmt.Sprintf("this error may indicate that the gofu daemon is not running, %s", explanation)
-	}
-	return fmt.Errorf("%s\nCause: %s", explanation, cause.Error())
-}
+type runFunc = func(output *output.Output, cmd *cobra.Command, args []string)
+type cobraRunFunc = func(cmd *cobra.Command, args []string)
 
-func Error(explanation string, cause *pb.Error) error {
-	return fmt.Errorf("%s\nCause: %s", explanation, cause.Message)
+func Run(run runFunc) cobraRunFunc {
+	return func(cmd *cobra.Command, args []string) {
+		cmd.SilenceUsage = true
+
+		out := output.NewOutput()
+		outputFormat := cmd.Flag("output").Value.String()
+
+		run(out, cmd, args)
+
+		if err := out.Print(outputFormat); err != nil {
+			fmt.Println(fmt.Sprintf("Error: %s", err.Error()))
+		}
+	}
 }
 
 func Client() (*gofu.Client, error) {
 	client, err := gofu.DefaultClient()
 	if err != nil {
-		return nil, InternalError("this error may indicate that the gofu daemon is not running", err)
+		return nil, fmt.Errorf("this error may indicate that the gofu daemon is not running, %s", err.Error())
 	}
 	return client, nil
 }

@@ -7,10 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var restartCommand = &cobra.Command{
-	Use:   "restart {NAME|PID}",
-	Short: "Restart a process",
-	Args:  cobra.MinimumNArgs(1),
+var psCommand = &cobra.Command{
+	Use:   "ps",
+	Short: "List processes",
 	Run: gofu_cli.Run(func(output *output.Output, cmd *cobra.Command, args []string) {
 		client, err := gofu_cli.Client()
 		if err != nil {
@@ -18,21 +17,15 @@ var restartCommand = &cobra.Command{
 			return
 		}
 
-		reply, err := client.ProcessManager.Restart(
+		reply, err := client.ProcessManager.List(
 			gofu_cli.Timeout(RequestTimeout),
-			&pb.RestartRequest{
-				Process: args[0],
-			},
+			&pb.ListRequest{},
 		)
 		if err != nil {
-			output.Error("failed to restart the process", err)
-			return
-		}
-		if reply.GetError() != nil {
-			output.DaemonError("failed to restart the process", reply.GetError())
+			output.Error("failed to get a list of processes", err)
 			return
 		}
 
-		output.Text("message", "OK")
+		output.Processes("processes", reply.Processes)
 	}),
 }

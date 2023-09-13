@@ -2,7 +2,6 @@ package format
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -10,7 +9,6 @@ import (
 
 func NewTable(header table.Row, rows []table.Row) table.Writer {
 	tw := table.NewWriter()
-	tw.SetOutputMirror(os.Stdout)
 	tw.Style().Format.Header = text.FormatUpper
 	tw.Style().Box = table.StyleBoxRounded
 	for i, value := range header {

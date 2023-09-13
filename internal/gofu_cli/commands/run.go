@@ -1,10 +1,10 @@
 package commands
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/olexnzarov/gofu/internal/gofu_cli"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/output"
 	"github.com/olexnzarov/gofu/pb"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -25,11 +25,11 @@ var runCommand = &cobra.Command{
 	Use:   "run COMMAND [ARGUMENT ...]",
 	Short: "Start a process",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.SilenceUsage = true
+	Run: gofu_cli.Run(func(output *output.Output, cmd *cobra.Command, args []string) {
 		client, err := gofu_cli.Client()
 		if err != nil {
-			return err
+			output.Fail(err)
+			return
 		}
 
 		reply, err := client.ProcessManager.Start(
@@ -50,19 +50,17 @@ var runCommand = &cobra.Command{
 				},
 			},
 		)
-
 		if err != nil {
-			return gofu_cli.InternalError("failed to start the process", err)
+			output.Error("failed to start the process", err)
+			return
 		}
-
 		if reply.GetError() != nil {
-			return gofu_cli.Error("failed to start the process", reply.GetError())
+			output.DaemonError("failed to start the process", reply.GetError())
+			return
 		}
 
-		fmt.Printf("pid=%d\n", reply.GetProcess().Pid)
-
-		return nil
-	},
+		output.Process("process", reply.GetProcess())
+	}),
 }
 
 func init() {
