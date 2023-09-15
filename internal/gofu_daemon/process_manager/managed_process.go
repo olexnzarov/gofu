@@ -122,8 +122,6 @@ func (p *ManagedProcess) onProcessExit(process *process.Process, exitCode int) {
 	if p.canAutoRestart() {
 		p.log.Sugar().Infof("%s: automatic restart is enabled", p)
 
-		defer func() { p.autoRestartTries.Store(0) }()
-
 		for p.canAutoRestart() {
 			p.autoRestartTries.Add(1)
 
@@ -210,6 +208,7 @@ func (p *ManagedProcess) Restart() error {
 	p.processMutex.Lock()
 	defer p.processMutex.Unlock()
 	p.log.Sugar().Infof("%s: restarting the process", p)
+	p.autoRestartTries.Store(0)
 	p.interrupted = false
 	if p.IsRunning() {
 		p.log.Sugar().Infof("%s: killing pid=%d", p, p.Pid())

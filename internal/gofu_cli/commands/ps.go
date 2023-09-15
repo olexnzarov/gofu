@@ -9,8 +9,9 @@ import (
 )
 
 var psCommand = &cobra.Command{
-	Use:   "ps",
-	Short: "List processes",
+	Use:     "ps",
+	Short:   "List processes",
+	Aliases: []string{"list"},
 	Run: gofu_cli.Run(func(output *output.Output, cmd *cobra.Command, args []string) {
 		client, err := gofu_cli.Client()
 		if err != nil {
