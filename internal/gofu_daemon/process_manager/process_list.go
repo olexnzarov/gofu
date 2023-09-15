@@ -9,7 +9,6 @@ import (
 )
 
 // ProcessList is a structure that contains a list of processes.
-// Every method this struct has is thread-safe.
 type ProcessList struct {
 	processes      []*ManagedProcess
 	processesMutex *sync.RWMutex
@@ -22,7 +21,7 @@ func NewProcessList() *ProcessList {
 	}
 }
 
-// All returns a list of all processes.
+// All returns a list of all processes. Thread-safe.
 func (l *ProcessList) All() *[]*ManagedProcess {
 	l.processesMutex.RLock()
 	defer l.processesMutex.RUnlock()
@@ -31,16 +30,24 @@ func (l *ProcessList) All() *[]*ManagedProcess {
 
 // Add adds a process to the list. If process is already in the list, returns an error.
 func (l *ProcessList) add(process *ManagedProcess) error {
-	if _, err := l.GetById(process.Data().Id); err == nil {
-		return fmt.Errorf("duplicate of a process '%s'", process.Data().Id)
-	}
 	l.processesMutex.Lock()
 	defer l.processesMutex.Unlock()
+
+	// process duplicates, sanity check
+	if _, err := l.getById(process.data.Id); err == nil {
+		return fmt.Errorf("duplicate of a process '%s'", process.data.Id)
+	}
+
+	// unique names
+	if _, err := l.find(process.data.Configuration.Name); err == nil {
+		return fmt.Errorf("process with name '%s' already exists", process.data.Configuration.Name)
+	}
+
 	l.processes = append(l.processes, process)
 	return nil
 }
 
-// Remove removes a process from the list.
+// Remove removes a process from the list. Thread-safe.
 func (l *ProcessList) remove(process *ManagedProcess) {
 	l.processesMutex.Lock()
 	defer l.processesMutex.Unlock()
@@ -59,35 +66,24 @@ func (l *ProcessList) remove(process *ManagedProcess) {
 func (l *ProcessList) GetByPid(pid int) (*ManagedProcess, error) {
 	l.processesMutex.RLock()
 	defer l.processesMutex.RUnlock()
-
-	for _, p := range l.processes {
-		if inner, err := p.Inner(); err == nil && inner.Pid == pid {
-			return p, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unknown process '%d'", pid)
+	return l.getByPid(pid)
 }
 
 // GetById returns the process with given internal id. If process is not in the registry, returns nil. Thread-safe.
 func (l *ProcessList) GetById(id string) (*ManagedProcess, error) {
 	l.processesMutex.RLock()
 	defer l.processesMutex.RUnlock()
-
-	for _, p := range l.processes {
-		if p.Data().Id == id {
-			return p, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unknown process '%s'", id)
+	return l.getById(id)
 }
 
 // Find returns the process with given name or pid. If process is not in the registry, returns nil. Thread-safe.
 func (l *ProcessList) Find(name string) (*ManagedProcess, error) {
 	l.processesMutex.RLock()
 	defer l.processesMutex.RUnlock()
+	return l.find(name)
+}
 
+func (l *ProcessList) find(name string) (*ManagedProcess, error) {
 	name = strings.TrimSpace(name)
 
 	for _, p := range l.processes {
@@ -104,4 +100,24 @@ func (l *ProcessList) Find(name string) (*ManagedProcess, error) {
 	}
 
 	return nil, fmt.Errorf("unknown process '%s'", name)
+}
+
+func (l *ProcessList) getById(id string) (*ManagedProcess, error) {
+	for _, p := range l.processes {
+		if p.Data().Id == id {
+			return p, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown process '%s'", id)
+}
+
+func (l *ProcessList) getByPid(pid int) (*ManagedProcess, error) {
+	for _, p := range l.processes {
+		if inner, err := p.Inner(); err == nil && inner.Pid == pid {
+			return p, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown process '%d'", pid)
 }
