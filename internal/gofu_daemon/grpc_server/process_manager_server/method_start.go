@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lucasepe/codename"
 	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_manager"
 	"github.com/olexnzarov/gofu/pb"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -22,8 +23,17 @@ func SanitizeProcessName(name string) (string, error) {
 	return name, nil
 }
 
-// GetDefaultProcessName returns a name for the process based on its command and arguments.
-func GetDefaultProcessName(in *pb.ProcessConfiguration) string {
+// GetDefaultProcessName returns a human-readable name for the process.
+// If it can't generate a unique one, returns a name based on process' command and arguments.
+func GetDefaultProcessName(processManager *process_manager.ProcessManager, in *pb.ProcessConfiguration) string {
+	if rand, err := codename.DefaultRNG(); err == nil {
+		for i := 0; i < 3; i++ {
+			name := codename.Generate(rand, 0)
+			if _, err := processManager.Processes.Find(name); err != nil {
+				return name
+			}
+		}
+	}
 	return strings.Join(append([]string{in.Command}, in.Arguments...), " ")
 }
 
@@ -40,8 +50,7 @@ func (s *ProcessManagerServer) Start(ctx context.Context, in *pb.StartRequest) (
 	if sanitizedName, err := SanitizeProcessName(in.Configuration.Name); err == nil {
 		in.Configuration.Name = sanitizedName
 	} else {
-		in.Configuration.Name = GetDefaultProcessName(in.Configuration)
-
+		in.Configuration.Name = GetDefaultProcessName(s.processManager, in.Configuration)
 	}
 
 	// Set default restart policy
