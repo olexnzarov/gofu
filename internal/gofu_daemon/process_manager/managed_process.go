@@ -42,7 +42,7 @@ func NewManagedProcess(log *zap.Logger, directories *gofu.Directories, data *Pro
 }
 
 func (p *ManagedProcess) String() string {
-	return fmt.Sprintf("process=%s", p.data.Id)
+	return fmt.Sprintf("Process=%s", p.data.Id)
 }
 
 func (p *ManagedProcess) Status() string {
@@ -169,7 +169,7 @@ func (p *ManagedProcess) spawn() error {
 
 	process, exit, err := process.Start(startOptions)
 	if err != nil {
-		p.log.Sugar().Infof("%s: failed to spawn a process: %s", p, err.Error())
+		p.log.Sugar().Infof("%s: failed to spawn a process: %s", p, err)
 		return err
 	}
 

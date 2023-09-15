@@ -23,7 +23,7 @@ func Run(run runFunc) cobraRunFunc {
 		run(out, cmd, args)
 
 		if err := out.Print(outputFormat); err != nil {
-			fmt.Println(fmt.Sprintf("Error: %s", err.Error()))
+			fmt.Println(fmt.Sprintf("Error: %s", err))
 		}
 	}
 }
@@ -31,7 +31,7 @@ func Run(run runFunc) cobraRunFunc {
 func Client() (*gofu.Client, error) {
 	client, err := gofu.DefaultClient()
 	if err != nil {
-		return nil, fmt.Errorf("this error may indicate that the gofu daemon is not running, %s", err.Error())
+		return nil, fmt.Errorf("this error may indicate that the gofu daemon is not running, %s", err)
 	}
 	return client, nil
 }
