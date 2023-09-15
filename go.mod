@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/google/uuid v1.3.1
 	github.com/jedib0t/go-pretty/v6 v6.4.7
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/spf13/cobra v1.7.0
 	go.uber.org/fx v1.20.0
 	go.uber.org/multierr v1.11.0

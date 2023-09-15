@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 
 	"github.com/olexnzarov/gofu/internal/gofu_daemon"
 	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server"
 	"github.com/olexnzarov/gofu/internal/gofu_daemon/grpc_server/process_manager_server"
 	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_manager"
+	"github.com/olexnzarov/gofu/internal/gofu_daemon/process_storage"
 	"github.com/olexnzarov/gofu/internal/logger"
 	"github.com/olexnzarov/gofu/pkg/gofu"
 	"go.uber.org/fx"
@@ -36,6 +38,18 @@ func runDaemon(lc fx.Lifecycle, daemon *gofu_daemon.Daemon) {
 	lc.Append(fx.StopHook(daemon.Stop))
 }
 
+func persistentStorage(log *zap.Logger, sql *sql.DB) (process_manager.PersistentStorage, error) {
+	storage := process_storage.New(log, sql)
+	if err := storage.Initialize(); err != nil {
+		return nil, err
+	}
+	return storage, nil
+}
+
+func initialize(manager *process_manager.ProcessManager) {
+	go manager.StartPersistent()
+}
+
 func main() {
 	flag.Parse()
 
@@ -45,11 +59,14 @@ func main() {
 			gofu.NewDirectories,
 			process_manager.New,
 			process_manager_server.New,
+			persistentStorage,
 			grpc_server.NewConfig,
 			grpc_server.New,
+			gofu_daemon.NewDatabase,
 			gofu_daemon.NewDaemon,
 		),
 		withLogger(),
 		fx.Invoke(runDaemon),
+		fx.Invoke(initialize),
 	).Run()
 }
