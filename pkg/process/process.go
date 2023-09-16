@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/olexnzarov/gofu/pkg/envfmt"
 	"go.uber.org/multierr"
 )
 
@@ -117,10 +118,7 @@ func Start(options StartOptions) (*Process, <-chan int, error) {
 	// Combine environment variables
 	env := os.Environ()
 	if options.Environment != nil {
-		optEnv := make([]string, 0, len(options.Environment))
-		for key, value := range options.Environment {
-			optEnv = append(optEnv, fmt.Sprintf("%s=%s", key, value))
-		}
+		optEnv := envfmt.ToKeyValueArray(options.Environment)
 		env = append(env, optEnv...)
 	}
 

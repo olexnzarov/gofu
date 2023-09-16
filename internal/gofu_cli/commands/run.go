@@ -1,11 +1,14 @@
 package commands
 
 import (
+	"fmt"
+	"maps"
 	"time"
 
 	"github.com/olexnzarov/gofu/internal/gofu_cli"
 	"github.com/olexnzarov/gofu/internal/gofu_cli/outputs"
 	"github.com/olexnzarov/gofu/pb"
+	"github.com/olexnzarov/gofu/pkg/envfmt"
 	"github.com/olexnzarov/gofu/pkg/output"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -36,6 +39,19 @@ var runCommand = &cobra.Command{
 			return
 		}
 
+		environmentMap := envfmt.ToKeyValueMap(environment)
+		for _, file := range environmentFiles {
+			fileEnvMap, err := envfmt.ReadFile(file)
+			if err != nil {
+				output.Add(
+					"error",
+					outputs.Error(fmt.Sprintf("failed to read the environment file - %s", file), err),
+				)
+				return
+			}
+			maps.Copy(environmentMap, fileEnvMap)
+		}
+
 		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
 		defer cancel()
 
@@ -44,10 +60,11 @@ var runCommand = &cobra.Command{
 			&pb.StartRequest{
 				Configuration: &pb.ProcessConfiguration{
 					// It's safe to index the slice like that because cobra validated the arguments beforehand.
-					Command:   args[0],
-					Arguments: args[1:],
-					Name:      name,
-					Persist:   save,
+					Command:     args[0],
+					Arguments:   args[1:],
+					Environment: environmentMap,
+					Name:        name,
+					Persist:     save,
 					RestartPolicy: &pb.ProcessConfiguration_RestartPolicy{
 						AutoRestart: restart,
 						MaxRetries:  restartMaxRetries,
