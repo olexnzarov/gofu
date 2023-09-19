@@ -1,19 +1,19 @@
-package commands
+package ps
 
 import (
-	"github.com/olexnzarov/gofu/internal/gofu_cli"
-	"github.com/olexnzarov/gofu/internal/gofu_cli/outputs"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities/outputs"
 	"github.com/olexnzarov/gofu/pb"
 	"github.com/olexnzarov/gofu/pkg/output"
 	"github.com/spf13/cobra"
 )
 
-var psCommand = &cobra.Command{
+var Command = &cobra.Command{
 	Use:     "ps",
 	Short:   "List processes",
 	Aliases: []string{"list"},
-	Run: gofu_cli.Run(func(output *output.Output, cmd *cobra.Command, args []string) {
-		client, err := gofu_cli.Client()
+	Run: utilities.RunCommand(func(output *output.Output, cmd *cobra.Command, args []string) {
+		client, err := utilities.Client()
 		if err != nil {
 			output.Add(
 				"error",
@@ -22,7 +22,7 @@ var psCommand = &cobra.Command{
 			return
 		}
 
-		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		timeout, cancel := utilities.Timeout()
 		defer cancel()
 
 		reply, err := client.ProcessManager.List(

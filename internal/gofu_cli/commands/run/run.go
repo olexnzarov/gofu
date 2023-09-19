@@ -1,12 +1,13 @@
-package commands
+package run
 
 import (
 	"fmt"
 	"maps"
 	"time"
 
-	"github.com/olexnzarov/gofu/internal/gofu_cli"
-	"github.com/olexnzarov/gofu/internal/gofu_cli/outputs"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/constants"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities/outputs"
 	"github.com/olexnzarov/gofu/pb"
 	"github.com/olexnzarov/gofu/pkg/envfmt"
 	"github.com/olexnzarov/gofu/pkg/output"
@@ -16,21 +17,21 @@ import (
 
 var (
 	name              string
-	save              bool
+	persist           bool
 	environment       []string
 	environmentFiles  []string
 	restart           bool
 	restartMaxRetries uint32
 	restartDelay      time.Duration
-	cwd               string
+	workingDirectory  string
 )
 
-var runCommand = &cobra.Command{
+var Command = &cobra.Command{
 	Use:   "run COMMAND [ARGUMENT ...]",
 	Short: "Start a process",
 	Args:  cobra.MinimumNArgs(1),
-	Run: gofu_cli.Run(func(output *output.Output, cmd *cobra.Command, args []string) {
-		client, err := gofu_cli.Client()
+	Run: utilities.RunCommand(func(output *output.Output, cmd *cobra.Command, args []string) {
+		client, err := utilities.Client()
 		if err != nil {
 			output.Add(
 				"error",
@@ -52,7 +53,7 @@ var runCommand = &cobra.Command{
 			maps.Copy(environmentMap, fileEnvMap)
 		}
 
-		timeout, cancel := gofu_cli.Timeout(RequestTimeout)
+		timeout, cancel := utilities.Timeout()
 		defer cancel()
 
 		reply, err := client.ProcessManager.Start(
@@ -64,13 +65,13 @@ var runCommand = &cobra.Command{
 					Arguments:   args[1:],
 					Environment: environmentMap,
 					Name:        name,
-					Persist:     save,
+					Persist:     persist,
 					RestartPolicy: &pb.ProcessConfiguration_RestartPolicy{
 						AutoRestart: restart,
 						MaxRetries:  restartMaxRetries,
 						Delay:       durationpb.New(restartDelay),
 					},
-					WorkingDirectory: cwd,
+					WorkingDirectory: workingDirectory,
 				},
 			},
 		)
@@ -97,12 +98,63 @@ var runCommand = &cobra.Command{
 }
 
 func init() {
-	runCommand.Flags().StringVarP(&name, "name", "n", "", "assign a process name (defaults to a randomly generated one)")
-	runCommand.Flags().BoolVarP(&save, "save", "s", false, "save the process to run it on startup")
-	runCommand.Flags().StringArrayVarP(&environment, "env", "e", []string{}, "set an environment variable, usage: -e FOO=BAR -e HELLO=WORLD")
-	runCommand.Flags().StringArrayVar(&environmentFiles, "env-file", []string{}, "read environment variables from a file, usage: --env-file default.env --env-file local.env")
-	runCommand.Flags().BoolVarP(&restart, "restart", "r", true, "restart the process when it exits")
-	runCommand.Flags().Uint32Var(&restartMaxRetries, "restart-max-retries", 1, "max number of restart tries")
-	runCommand.Flags().DurationVar(&restartDelay, "restart-delay", 0, "delay between automatic restarts")
-	runCommand.Flags().StringVar(&cwd, "cwd", "", "sets current working directory for the process")
+	Command.Flags().StringVarP(
+		&name,
+		constants.FLAG_NAME,
+		constants.FLAG_SHORT_NAME,
+		"",
+		"set the process name (defaults to a randomly generated one)",
+	)
+
+	Command.Flags().BoolVarP(
+		&persist,
+		constants.FLAG_PERSIST,
+		constants.FLAG_SHORT_PERSIST,
+		false,
+		"start the process on system startup",
+	)
+
+	Command.Flags().StringArrayVarP(
+		&environment,
+		constants.FLAG_ENV_VALUE,
+		constants.FLAG_SHORT_ENV_VALUE,
+		[]string{},
+		"set an environment variable, usage: -e FOO=BAR -e HELLO=WORLD",
+	)
+
+	Command.Flags().StringArrayVar(
+		&environmentFiles,
+		constants.FLAG_ENV_FILE,
+		[]string{},
+		"read environment variables from a file, usage: --env-file default.env --env-file local.env",
+	)
+
+	Command.Flags().BoolVarP(
+		&restart,
+		constants.FLAG_RESTART,
+		constants.FLAG_SHORT_RESTART,
+		true,
+		"automatically restart a process when it exits",
+	)
+
+	Command.Flags().Uint32Var(
+		&restartMaxRetries,
+		constants.FLAG_RESTART_MAX_RETRIES,
+		1,
+		"max number of restart tries",
+	)
+
+	Command.Flags().DurationVar(
+		&restartDelay,
+		constants.FLAG_RESTART_DELAY,
+		0,
+		"delay between automatic restarts",
+	)
+
+	Command.Flags().StringVar(
+		&workingDirectory,
+		constants.FLAG_WORKING_DIRECTORY,
+		"",
+		"set working directory for the process",
+	)
 }

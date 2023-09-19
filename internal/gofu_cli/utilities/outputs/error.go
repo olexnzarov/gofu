@@ -3,6 +3,7 @@ package outputs
 import (
 	"fmt"
 
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities"
 	"github.com/olexnzarov/gofu/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -30,6 +31,7 @@ func Error(description string, cause interface{}) *ErrorOutput {
 	default:
 		causeText = "unknown"
 	}
+	utilities.SetExitCode(1)
 	return &ErrorOutput{
 		cause:       causeText,
 		description: description,

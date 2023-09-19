@@ -1,9 +1,12 @@
 package main
 
 import (
-	"github.com/olexnzarov/gofu/internal/gofu_cli/commands"
+	"os"
+
+	"github.com/olexnzarov/gofu/internal/gofu_cli"
 )
 
 func main() {
-	commands.Execute()
+	exitCode := gofu_cli.Execute()
+	os.Exit(exitCode)
 }

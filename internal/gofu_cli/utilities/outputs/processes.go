@@ -2,7 +2,7 @@ package outputs
 
 import (
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/olexnzarov/gofu/internal/gofu_cli/format"
+	"github.com/olexnzarov/gofu/internal/gofu_cli/utilities/format"
 	"github.com/olexnzarov/gofu/pb"
 )
 
@@ -12,6 +12,13 @@ type ProcessTableOutput struct {
 
 func Processes(processes []*pb.ProcessInformation) *ProcessTableOutput {
 	return &ProcessTableOutput{processes: processes}
+}
+
+func formatBool(value bool) string {
+	if value {
+		return "Yes"
+	}
+	return "No"
 }
 
 func (pto *ProcessTableOutput) Text() string {
@@ -26,7 +33,7 @@ func (pto *ProcessTableOutput) Text() string {
 			table.Row{
 				p.Pid,
 				p.Configuration.Name,
-				format.Truncate(processComandWithArguments(p), 25),
+				format.Truncate(processComandWithArguments(p), 30),
 				prettyProcessStatus(p.Status),
 			},
 		)
