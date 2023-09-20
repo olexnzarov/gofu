@@ -1,9 +1,15 @@
 package process_manager
 
 import (
+	"fmt"
+
+	"github.com/olexnzarov/gofu/pb"
 	"github.com/olexnzarov/gofu/pkg/gofu"
+	"github.com/olexnzarov/protomask"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type ProcessManager struct {
@@ -64,11 +70,44 @@ func (r *ProcessManager) Start(data *ProcessData) (*ManagedProcess, error) {
 	return process, err
 }
 
-func (r *ProcessManager) Remove(process *ManagedProcess) error {
-	err := process.Stop()
-	r.Processes.remove(process)
-	if process.data.Configuration.Persist {
-		err = multierr.Append(err, r.storage.Delete(process.data.Id))
+func (r *ProcessManager) UpdateConfiguration(
+	process *ManagedProcess,
+	config *pb.ProcessConfiguration,
+	updateMask *fieldmaskpb.FieldMask,
+) error {
+	process.dataMutex.Lock()
+	defer process.dataMutex.Unlock()
+
+	previousConfig := proto.Clone(process.data.Configuration).(*pb.ProcessConfiguration)
+	err := protomask.Update(process.data.Configuration, config, updateMask)
+
+	if err != nil && previousConfig.Persist != config.Persist {
+		if config.Persist {
+			err = r.storage.Upsert(process.data)
+		} else {
+			err = r.storage.Delete(process.data.Id)
+		}
 	}
-	return err
+
+	// Revert the changes if something went wrong.
+	if err != nil {
+		process.data.Configuration = previousConfig
+		return fmt.Errorf("failed to update the process: %s", err.Error())
+	}
+
+	return nil
+}
+
+func (r *ProcessManager) Remove(process *ManagedProcess) error {
+	if process.data.Configuration.Persist {
+		err := r.storage.Delete(process.data.Id)
+		if err != nil {
+			return err
+		}
+	}
+
+	process.Stop()
+	r.Processes.remove(process)
+
+	return nil
 }

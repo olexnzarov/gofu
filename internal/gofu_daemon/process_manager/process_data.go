@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/olexnzarov/gofu/pb"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type ProcessData struct {
@@ -13,10 +14,21 @@ type ProcessData struct {
 
 const DEFAULT_RESTART_DELAY = time.Second * 10
 
+func (d *ProcessData) RestartPolicy() *pb.ProcessConfiguration_RestartPolicy {
+	if d.Configuration.RestartPolicy == nil {
+		return &pb.ProcessConfiguration_RestartPolicy{
+			AutoRestart: false,
+			Delay:       durationpb.New(time.Duration(DEFAULT_RESTART_DELAY)),
+			MaxRetries:  1,
+		}
+	}
+	return d.Configuration.RestartPolicy
+}
+
 func (d *ProcessData) AutoRestartDelay() time.Duration {
-	if d.Configuration.RestartPolicy == nil || d.Configuration.RestartPolicy.Delay == nil {
+	policy := d.RestartPolicy()
+	if policy.Delay == nil {
 		return DEFAULT_RESTART_DELAY
 	}
-
-	return d.Configuration.RestartPolicy.Delay.AsDuration()
+	return policy.Delay.AsDuration()
 }

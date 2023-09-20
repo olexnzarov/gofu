@@ -129,7 +129,7 @@ func (p *ManagedProcess) onProcessExit(process *process.Process, exitCode int) {
 			p.log.Sugar().Infof(
 				"%s: trying to restart in %s (%d/%d)",
 				p, delay, p.autoRestartTries.Load(),
-				p.data.Configuration.RestartPolicy.MaxRetries,
+				p.data.RestartPolicy().MaxRetries,
 			)
 			time.Sleep(delay)
 

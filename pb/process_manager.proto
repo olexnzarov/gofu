@@ -5,6 +5,7 @@ option go_package = "github.com/olexnzarov/gofu/pb";
 
 import "pb/process.proto";
 import "pb/common.proto";
+import "google/protobuf/field_mask.proto";
 
 message StartRequest {
   process.ProcessConfiguration configuration = 1;
@@ -39,9 +40,32 @@ message StopReply {
   optional common.Error error = 1;
 }
 
+message UpdateRequest {
+  string process = 1;
+  process.ProcessConfiguration configuration = 2;
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateReply {
+  oneof response {
+    common.Error error = 1;
+    process.ProcessInformation process = 2;
+  }
+}
+
+message RemoveRequest {
+  string process = 1;
+}
+
+message RemoveReply {
+  optional common.Error error = 1;
+}
+
 service ProcessManager {
   rpc Start(StartRequest) returns (StartReply) {}
   rpc List(ListRequest) returns (ListReply) {}
   rpc Restart(RestartRequest) returns (RestartReply) {}
   rpc Stop(StopRequest) returns (StopReply) {}
+  rpc Update(UpdateRequest) returns (UpdateReply) {}
+  rpc Remove(RemoveRequest) returns (RemoveReply) {}
 }

@@ -25,14 +25,3 @@ func New(
 		processManager: processManager,
 	}
 }
-
-// GetExitState returns an exit state if process has exited, otherwise it returns nil.
-func GetExitState(p *process_manager.ManagedProcess) *pb.ProcessInformation_ExitState {
-	code, err := p.ExitCode()
-	if err != nil {
-		return nil
-	}
-	return &pb.ProcessInformation_ExitState{
-		Code: int64(code),
-	}
-}

@@ -11,15 +11,7 @@ func (s *ProcessManagerServer) List(ctx context.Context, in *pb.ListRequest) (*p
 	processes := make([]*pb.ProcessInformation, 0, len(watchedProcesses))
 
 	for _, p := range watchedProcesses {
-		data := p.Data()
-		info := &pb.ProcessInformation{
-			Id:            data.Id,
-			Pid:           int64(p.Pid()),
-			Configuration: data.Configuration,
-			ExitState:     GetExitState(p),
-			Status:        p.Status(),
-		}
-		processes = append(processes, info)
+		processes = append(processes, GetProcessInformation(p))
 	}
 
 	return &pb.ListReply{
