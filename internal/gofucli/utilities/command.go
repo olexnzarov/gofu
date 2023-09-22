@@ -20,7 +20,7 @@ func InitializeRoot(cmd *cobra.Command) {
 	cmd.CompletionOptions.HiddenDefaultCmd = true
 
 	cmd.PersistentFlags().DurationVar(&RequestTimeout, "timeout", time.Second*90, "timeout for requests to the daemon")
-	cmd.PersistentFlags().StringVarP(&OutputFormat, "output", "o", "text", "output format (text, json, or prettyjson)")
+	cmd.PersistentFlags().StringVarP(&OutputFormat, "output", "o", output.OutputText, "output format (text, json, or prettyjson)")
 }
 
 func RunCommand(run runFunc) cobraRunFunc {

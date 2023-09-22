@@ -1,7 +1,7 @@
 package output
 
 const (
-	OUTPUT_TEXT       = "text"
-	OUTPUT_JSON       = "json"
-	OUTPUT_PRETTYJSON = "prettyjson"
+	OutputText       = "text"
+	OutputJSON       = "json"
+	OutputPrettyJSON = "prettyjson"
 )

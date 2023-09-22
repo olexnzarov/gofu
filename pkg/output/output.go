@@ -69,11 +69,11 @@ func (o *Output) Text() (string, error) {
 
 func (o *Output) Build(outputFormat string) (string, error) {
 	switch outputFormat {
-	case OUTPUT_JSON:
+	case OutputJSON:
 		return o.JSON(false)
-	case OUTPUT_PRETTYJSON:
+	case OutputPrettyJSON:
 		return o.JSON(true)
-	case OUTPUT_TEXT:
+	case OutputText:
 		return o.Text()
 	}
 	return "", fmt.Errorf("unknown output format - %s", outputFormat)
