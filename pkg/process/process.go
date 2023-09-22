@@ -6,9 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/olexnzarov/gofu/pkg/envfmt"
 	"go.uber.org/multierr"
+)
+
+var (
+	ErrProcessRunning = errors.New("process is still running")
 )
 
 type OutOptions struct {
@@ -26,19 +31,21 @@ type StartOptions struct {
 }
 
 type Process struct {
-	stdin    *os.File
-	stdout   *os.File
-	stderr   *os.File
-	inner    *os.Process
-	options  *StartOptions
-	exitCode *int
+	stdin     *os.File
+	stdout    *os.File
+	stderr    *os.File
+	inner     *os.Process
+	options   *StartOptions
+	exitCode  *int
+	startTime time.Time
+	stopTime  time.Time
 }
 
 func NewOutOptions(outDirectory string, id string) OutOptions {
 	return OutOptions{
 		Stdin:  os.DevNull,
-		Stdout: fmt.Sprintf("%s/%s-out.log", outDirectory, id),
-		Stderr: fmt.Sprintf("%s/%s-err.log", outDirectory, id),
+		Stdout: fmt.Sprintf("%s/%s.log", outDirectory, id),
+		Stderr: fmt.Sprintf("%s/%s.log", outDirectory, id),
 	}
 }
 
@@ -80,9 +87,20 @@ func (p *Process) Options() *StartOptions {
 	return p.options
 }
 
+func (p *Process) StartedAt() time.Time {
+	return p.startTime
+}
+
+func (p *Process) StoppedAt() (time.Time, error) {
+	if p.exitCode == nil {
+		return time.Time{}, ErrProcessRunning
+	}
+	return p.stopTime, nil
+}
+
 func (p *Process) ExitCode() (int, error) {
 	if p.exitCode == nil {
-		return 0, errors.New("process is still running")
+		return 0, ErrProcessRunning
 	}
 	return *p.exitCode, nil
 }
@@ -149,6 +167,7 @@ func Start(options StartOptions) (*Process, <-chan int, error) {
 		return nil, nil, err
 	}
 	process.inner = p
+	process.startTime = time.Now()
 
 	exitChannel := make(chan int)
 	go func() {
@@ -158,6 +177,7 @@ func Start(options StartOptions) (*Process, <-chan int, error) {
 			code = state.ExitCode()
 		}
 		process.exitCode = &code
+		process.stopTime = time.Now()
 		exitChannel <- *process.exitCode
 		close(exitChannel)
 	}()

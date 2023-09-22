@@ -27,11 +27,11 @@ func (s *Service) UpdateProcess(nameOrPid string, config *pb.ProcessConfiguratio
 			s.SanitizeProcessConfig(updatedConfig)
 
 			if updatedConfig.Persist {
-				if err := s.storage.Upsert(&procmanager.ProcessData{Id: process.Id(), Configuration: updatedConfig}); err != nil {
+				if err := s.storage.Upsert(&procmanager.ProcessData{Id: process.GetId(), Configuration: updatedConfig}); err != nil {
 					return nil, err
 				}
 			} else if currentConfig.Persist {
-				if err := s.storage.Delete(process.Id()); err != nil {
+				if err := s.storage.Delete(process.GetId()); err != nil {
 					return nil, err
 				}
 			}

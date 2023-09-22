@@ -56,7 +56,7 @@ func (l *ProcessList) remove(process *ManagedProcess) {
 	defer l.processesMutex.Unlock()
 
 	for i, p := range l.processes {
-		if p.Id() == process.Id() {
+		if p.GetId() == process.GetId() {
 			// It may be not memory or speed-efficient, but it preserves the order.
 			// I don't think this array will be of size that will have a problem with this.
 			l.processes = append(l.processes[:i], l.processes[i+1:]...)
@@ -90,7 +90,7 @@ func (l *ProcessList) find(name string) (*ManagedProcess, error) {
 	name = strings.TrimSpace(name)
 
 	for _, p := range l.processes {
-		if p.Data().Configuration.Name == name {
+		if p.GetData().Configuration.Name == name {
 			return p, nil
 		}
 	}
@@ -107,7 +107,7 @@ func (l *ProcessList) find(name string) (*ManagedProcess, error) {
 
 func (l *ProcessList) getById(id string) (*ManagedProcess, error) {
 	for _, p := range l.processes {
-		if p.Id() == id {
+		if p.GetId() == id {
 			return p, nil
 		}
 	}
@@ -117,7 +117,7 @@ func (l *ProcessList) getById(id string) (*ManagedProcess, error) {
 
 func (l *ProcessList) getByPid(pid int) (*ManagedProcess, error) {
 	for _, p := range l.processes {
-		if inner, err := p.Inner(); err == nil && inner.Pid == pid {
+		if inner, err := p.GetInnerRunningProcess(); err == nil && inner.Pid == pid {
 			return p, nil
 		}
 	}

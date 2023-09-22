@@ -22,7 +22,7 @@ const (
 
 type ManagedProcess struct {
 	log              logger.Logger
-	directories      *gofu.Directories
+	outOptions       process.OutOptions
 	data             *ProcessData
 	dataMutex        *sync.RWMutex
 	process          *process.Process
@@ -37,65 +37,73 @@ func NewManagedProcess(log logger.Logger, directories *gofu.Directories, data *P
 	return &ManagedProcess{
 		log:              log,
 		data:             data,
-		directories:      directories,
 		processMutex:     &sync.Mutex{},
 		dataMutex:        &sync.RWMutex{},
 		interruptMutex:   &sync.Mutex{},
 		interruptChannel: make(chan interface{}),
+		outOptions:       process.NewOutOptions(directories.LogDirectory, data.Id),
 	}
 }
 
 func (p *ManagedProcess) String() string {
-	return fmt.Sprintf("Process=%s", p.data.Id)
+	return fmt.Sprintf("Process '%s'", p.data.Configuration.Name)
 }
 
-func (p *ManagedProcess) Status() string {
+func (p *ManagedProcess) GetRestarts() uint32 {
+	return p.autoRestartTries.Load()
+}
+
+func (p *ManagedProcess) GetStatus() string {
 	if p.IsRunning() {
 		return STATUS_RUNNING
 	}
 	if p.canAutoRestart() {
 		return STATUS_RESTARTING
 	}
-	if code, _ := p.ExitCode(); code > 0 {
+	if code, _ := p.GetExitCode(); code > 0 {
 		return STATUS_FAILED
 	}
 	return STATUS_STOPPED
 }
 
-func (p *ManagedProcess) Process() (*process.Process, error) {
+func (p *ManagedProcess) GetRunningProcess() (*process.Process, error) {
 	if p.process == nil {
 		return nil, errors.New("process is not running")
 	}
 	return p.process, nil
 }
 
-func (p *ManagedProcess) Inner() (*os.Process, error) {
-	process, err := p.Process()
+func (p *ManagedProcess) GetInnerRunningProcess() (*os.Process, error) {
+	process, err := p.GetRunningProcess()
 	if err != nil {
 		return nil, err
 	}
 	return process.Inner(), nil
 }
 
-func (p *ManagedProcess) Pid() int {
-	process, err := p.Inner()
+func (p *ManagedProcess) GetProcessId() int {
+	process, err := p.GetInnerRunningProcess()
 	if err != nil {
 		return -1
 	}
 	return process.Pid
 }
 
-func (p *ManagedProcess) Id() string {
+func (p *ManagedProcess) GetId() string {
 	return p.data.Id
 }
 
-func (p *ManagedProcess) Data() *ProcessData {
+func (p *ManagedProcess) GetStdoutPath() string {
+	return p.outOptions.Stdout
+}
+
+func (p *ManagedProcess) GetData() *ProcessData {
 	p.dataMutex.RLock()
 	defer p.dataMutex.RUnlock()
 	return p.data
 }
 
-func (p *ManagedProcess) ExitCode() (int, error) {
+func (p *ManagedProcess) GetExitCode() (int, error) {
 	if p.process == nil {
 		return 0, nil
 	}
@@ -103,7 +111,7 @@ func (p *ManagedProcess) ExitCode() (int, error) {
 }
 
 func (p *ManagedProcess) IsRunning() bool {
-	_, err := p.ExitCode()
+	_, err := p.GetExitCode()
 	return err != nil
 }
 
@@ -121,7 +129,7 @@ func (p *ManagedProcess) waitWithInterrupt(duration time.Duration) {
 }
 
 func (p *ManagedProcess) canAutoRestart() bool {
-	config := p.Data().Configuration
+	config := p.GetData().Configuration
 	if p.interrupted || config.RestartPolicy == nil || !config.RestartPolicy.AutoRestart {
 		return false
 	}
@@ -182,7 +190,7 @@ func (p *ManagedProcess) spawn() error {
 
 	p.dataMutex.RLock()
 	startOptions := process.StartOptions{
-		Out:         process.NewOutOptions(p.directories.LogDirectory, p.data.Id),
+		Out:         p.outOptions,
 		Command:     p.data.Configuration.Command,
 		Arguments:   p.data.Configuration.Arguments,
 		Environment: p.data.Configuration.Environment,
@@ -250,7 +258,7 @@ func (p *ManagedProcess) Restart() error {
 	p.autoRestartTries.Store(0)
 	p.interrupt(false)
 	if p.IsRunning() {
-		p.log.Infof("%s: killing pid=%d", p, p.Pid())
+		p.log.Infof("%s: killing pid=%d", p, p.GetProcessId())
 		p.process.Close()
 		p.process.Inner().Wait()
 	}

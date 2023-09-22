@@ -5,9 +5,9 @@ func (s *Service) RemoveProcess(nameOrPid string) error {
 	if err != nil {
 		return err
 	}
-	data := process.Data()
+	data := process.GetData()
 	if data.Configuration.Persist {
-		if err := s.storage.Delete(process.Id()); err != nil {
+		if err := s.storage.Delete(process.GetId()); err != nil {
 			return err
 		}
 	}
