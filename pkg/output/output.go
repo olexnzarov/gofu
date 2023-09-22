@@ -40,7 +40,7 @@ func (o *Output) Clear() {
 	o.writers = []indexedOutputWriter{}
 }
 
-func (o *Output) JSON() (string, error) {
+func (o *Output) JSON(pretty bool) (string, error) {
 	o.writersMutex.RLock()
 	defer o.writersMutex.RUnlock()
 
@@ -48,7 +48,7 @@ func (o *Output) JSON() (string, error) {
 	for _, iw := range o.writers {
 		object[iw.index] = iw.writer.Object()
 	}
-	bytes, err := json.Marshal(object)
+	bytes, err := jsonMarshal(object, pretty)
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +70,9 @@ func (o *Output) Text() (string, error) {
 func (o *Output) Build(outputFormat string) (string, error) {
 	switch outputFormat {
 	case OUTPUT_JSON:
-		return o.JSON()
+		return o.JSON(false)
+	case OUTPUT_PRETTYJSON:
+		return o.JSON(true)
 	case OUTPUT_TEXT:
 		return o.Text()
 	}
@@ -84,4 +86,11 @@ func (o *Output) Print(outputFormat string) error {
 	}
 	_, err = fmt.Println(str)
 	return err
+}
+
+func jsonMarshal(v any, pretty bool) ([]byte, error) {
+	if pretty {
+		return json.MarshalIndent(v, "", "  ")
+	}
+	return json.Marshal(v)
 }
