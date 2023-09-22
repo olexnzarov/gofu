@@ -12,7 +12,7 @@ import (
 
 const (
 	DefaultAutoRestart       = false
-	DefaultRestartDelay      = time.Second * 5
+	DefaultRestartDelay      = time.Second * 1
 	DefaultRestartMaxRetries = 0
 )
 

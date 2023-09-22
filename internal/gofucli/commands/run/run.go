@@ -133,21 +133,21 @@ func init() {
 		&restart,
 		constants.FLAG_RESTART,
 		constants.FLAG_SHORT_RESTART,
-		true,
+		false,
 		"automatically restart a process when it exits",
 	)
 
 	Command.Flags().Uint32Var(
 		&restartMaxRetries,
 		constants.FLAG_RESTART_MAX_RETRIES,
-		1,
+		0,
 		"max number of restart tries",
 	)
 
 	Command.Flags().DurationVar(
 		&restartDelay,
 		constants.FLAG_RESTART_DELAY,
-		0,
+		time.Second*1,
 		"delay between automatic restarts",
 	)
 
