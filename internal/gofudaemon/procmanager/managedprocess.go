@@ -28,16 +28,20 @@ type ManagedProcess struct {
 	process          *process.Process
 	processMutex     *sync.Mutex
 	interrupted      bool
+	interruptChannel chan interface{}
+	interruptMutex   *sync.Mutex
 	autoRestartTries atomic.Uint32
 }
 
 func NewManagedProcess(log logger.Logger, directories *gofu.Directories, data *ProcessData) *ManagedProcess {
 	return &ManagedProcess{
-		log:          log,
-		data:         data,
-		directories:  directories,
-		processMutex: &sync.Mutex{},
-		dataMutex:    &sync.RWMutex{},
+		log:              log,
+		data:             data,
+		directories:      directories,
+		processMutex:     &sync.Mutex{},
+		dataMutex:        &sync.RWMutex{},
+		interruptMutex:   &sync.Mutex{},
+		interruptChannel: make(chan interface{}),
 	}
 }
 
@@ -103,6 +107,19 @@ func (p *ManagedProcess) IsRunning() bool {
 	return err != nil
 }
 
+func (p *ManagedProcess) waitWithInterrupt(duration time.Duration) {
+	waitChannel := make(chan interface{})
+	go func() {
+		time.Sleep(duration)
+		waitChannel <- nil
+	}()
+
+	select {
+	case <-p.interruptChannel:
+	case <-waitChannel:
+	}
+}
+
 func (p *ManagedProcess) canAutoRestart() bool {
 	config := p.Data().Configuration
 	if p.interrupted || config.RestartPolicy == nil || !config.RestartPolicy.AutoRestart {
@@ -135,7 +152,8 @@ func (p *ManagedProcess) onProcessExit(process *process.Process, exitCode int) {
 				p, delay, p.autoRestartTries.Load(),
 				p.data.GetRestartPolicy().MaxRetries,
 			)
-			time.Sleep(delay)
+
+			p.waitWithInterrupt(delay)
 
 			if p.interrupted {
 				p.log.Infof("%s: process was interrupted, canceling the autorestart", p)
@@ -148,10 +166,10 @@ func (p *ManagedProcess) onProcessExit(process *process.Process, exitCode int) {
 			}
 		}
 
-		p.interrupted = true
+		p.interrupt(true)
 		p.log.Infof("%s: failed to automatically restart")
 	} else {
-		p.interrupted = true
+		p.interrupt(true)
 	}
 }
 
@@ -195,28 +213,42 @@ func (p *ManagedProcess) safeSpawn() error {
 	return p.spawn()
 }
 
+func (p *ManagedProcess) interrupt(interrupted bool) {
+	p.interruptMutex.Lock()
+	defer p.interruptMutex.Unlock()
+	if interrupted {
+		if p.interruptChannel != nil {
+			select {
+			case p.interruptChannel <- nil:
+			default:
+			}
+			close(p.interruptChannel)
+			p.interruptChannel = nil
+		}
+	} else {
+		p.interruptChannel = make(chan interface{})
+	}
+	p.interrupted = interrupted
+}
+
 func (p *ManagedProcess) Stop() error {
-	// It's important to set interrupted before we acquire the process lock.
-	// onProcessExit function can keep a lock when autorestarts are enabled.
-	// Setting "interrupted = true" is a way to cancel the autorestarts.
-	p.interrupted = true
+	p.interrupt(true)
 	p.processMutex.Lock()
 	defer p.processMutex.Unlock()
 	if !p.IsRunning() {
-		return errors.New("process is not running")
+		return nil
 	}
 	p.log.Infof("%s: stopping the process", p)
-	p.process.Close()
-	return nil
+	return p.process.Close()
 }
 
 func (p *ManagedProcess) Restart() error {
-	p.interrupted = true
+	p.interrupt(true)
 	p.processMutex.Lock()
 	defer p.processMutex.Unlock()
 	p.log.Infof("%s: restarting the process", p)
 	p.autoRestartTries.Store(0)
-	p.interrupted = false
+	p.interrupt(false)
 	if p.IsRunning() {
 		p.log.Infof("%s: killing pid=%d", p, p.Pid())
 		p.process.Close()
