@@ -6,7 +6,7 @@
 
 ## Binaries
 
-- [gofu-daemon](./cmd/gofu-daemon/main.go) - a daemon that manages the processes started by it.
+- [gofudaemon](./cmd/gofudaemon/main.go) - a daemon that manages the processes started by it.
 - [gofu](./cmd/gofu/main.go) - a command-line utility that lets you control the daemon.
 - gofu-web - a web interface that lets you control the daemon.
 

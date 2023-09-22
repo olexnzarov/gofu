@@ -1,5 +1,5 @@
-DAEMON_MAIN = cmd/gofu-daemon/main.go
-DAEMON_BIN = build/gofu-daemon
+DAEMON_MAIN = cmd/gofudaemon/main.go
+DAEMON_BIN = build/gofudaemon
 
 run-tests:
 	go test -v ./...
@@ -9,7 +9,7 @@ build-daemon:
 	go build -o $(DAEMON_BIN) $(DAEMON_MAIN)
 
 run-daemon:
-	go run $(DAEMON_MAIN) --fx-native-logger
+	go run $(DAEMON_MAIN)
 
 install-gofu:
 	go install ./cmd/gofu
