@@ -7,20 +7,20 @@
 ## Usage
 
 ```sh
-gofu run -n $NAME $COMMAND # to create a named process 
-gofu run -s $COMMAND # to create a persistent process
+gofu run -n $NAME $COMMAND  # to create a named process 
+gofu run -s $COMMAND        # to create a persistent process
 ```
 
 ```sh
-gofu ps # to list all processes
+gofu ps               # to list all processes
 gofu ps -o prettyjson # to list all processes in formatted json
-gofu inspect $NAME # to get information about the process
+gofu inspect $NAME    # to get information about the process
 ```
 
 ```sh
-gofu stop $NAME # to stop the running process
-gofu restart $NAME # to restart the process
-gofu rm $NAME # to remove the process from the daemon
+gofu stop $NAME     # to stop the running process
+gofu restart $NAME  # to restart the process
+gofu rm $NAME       # to remove the process from the daemon
 ```
 
 Check out [recipes](./RECIPES.md) for more advanced examples on how to use **gofu**.

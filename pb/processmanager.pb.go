@@ -26,7 +26,7 @@ type StartRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Configuration *ProcessConfiguration `protobuf:"bytes,1,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	Configuration *ProcessConfiguration `protobuf:"bytes,1,opt,name=configuration,proto3" json:"configuration"`
 }
 
 func (x *StartRequest) Reset() {
@@ -192,7 +192,7 @@ type ListReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Processes []*ProcessInformation `protobuf:"bytes,1,rep,name=processes,proto3" json:"processes,omitempty"`
+	Processes []*ProcessInformation `protobuf:"bytes,1,rep,name=processes,proto3" json:"processes"`
 }
 
 func (x *ListReply) Reset() {
@@ -239,7 +239,7 @@ type RestartRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process,omitempty"`
+	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process"`
 }
 
 func (x *RestartRequest) Reset() {
@@ -286,7 +286,7 @@ type RestartReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error"`
 }
 
 func (x *RestartReply) Reset() {
@@ -333,7 +333,7 @@ type StopRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process,omitempty"`
+	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process"`
 }
 
 func (x *StopRequest) Reset() {
@@ -380,7 +380,7 @@ type StopReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error"`
 }
 
 func (x *StopReply) Reset() {
@@ -427,9 +427,9 @@ type UpdateRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Process       string                 `protobuf:"bytes,1,opt,name=process,proto3" json:"process,omitempty"`
-	Configuration *ProcessConfiguration  `protobuf:"bytes,2,opt,name=configuration,proto3" json:"configuration,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	Process       string                 `protobuf:"bytes,1,opt,name=process,proto3" json:"process"`
+	Configuration *ProcessConfiguration  `protobuf:"bytes,2,opt,name=configuration,proto3" json:"configuration"`
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask"`
 }
 
 func (x *UpdateRequest) Reset() {
@@ -571,7 +571,7 @@ type RemoveRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process,omitempty"`
+	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process"`
 }
 
 func (x *RemoveRequest) Reset() {
@@ -618,7 +618,7 @@ type RemoveReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error"`
 }
 
 func (x *RemoveReply) Reset() {
