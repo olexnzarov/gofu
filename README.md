@@ -25,6 +25,13 @@ gofu rm $NAME       # to remove the process from the daemon
 
 Check out [recipes](./RECIPES.md) for more advanced examples on how to use **gofu**.
 
+## Siblings
+
+These libraries were developed for use in gofu, but you can use them in your projects as standalone packages.
+
+- [protomask](https://github.com/olexnzarov/protomask)
+- [processinfo](https://github.com/olexnzarov/processinfo) 
+
 ## License
 
 gofu is available under the [MIT](./LICENSE) license, allowing for free use, modification, and distribution.
