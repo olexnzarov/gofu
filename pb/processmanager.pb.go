@@ -660,6 +660,134 @@ func (x *RemoveReply) GetError() *Error {
 	return nil
 }
 
+type GetRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Process string `protobuf:"bytes,1,opt,name=process,proto3" json:"process"`
+}
+
+func (x *GetRequest) Reset() {
+	*x = GetRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pb_processmanager_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRequest) ProtoMessage() {}
+
+func (x *GetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_processmanager_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRequest.ProtoReflect.Descriptor instead.
+func (*GetRequest) Descriptor() ([]byte, []int) {
+	return file_pb_processmanager_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetRequest) GetProcess() string {
+	if x != nil {
+		return x.Process
+	}
+	return ""
+}
+
+type GetReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Response:
+	//
+	//	*GetReply_Error
+	//	*GetReply_Process
+	Response isGetReply_Response `protobuf_oneof:"response"`
+}
+
+func (x *GetReply) Reset() {
+	*x = GetReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pb_processmanager_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReply) ProtoMessage() {}
+
+func (x *GetReply) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_processmanager_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReply.ProtoReflect.Descriptor instead.
+func (*GetReply) Descriptor() ([]byte, []int) {
+	return file_pb_processmanager_proto_rawDescGZIP(), []int{13}
+}
+
+func (m *GetReply) GetResponse() isGetReply_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (x *GetReply) GetError() *Error {
+	if x, ok := x.GetResponse().(*GetReply_Error); ok {
+		return x.Error
+	}
+	return nil
+}
+
+func (x *GetReply) GetProcess() *ProcessInformation {
+	if x, ok := x.GetResponse().(*GetReply_Process); ok {
+		return x.Process
+	}
+	return nil
+}
+
+type isGetReply_Response interface {
+	isGetReply_Response()
+}
+
+type GetReply_Error struct {
+	Error *Error `protobuf:"bytes,1,opt,name=error,proto3,oneof"`
+}
+
+type GetReply_Process struct {
+	Process *ProcessInformation `protobuf:"bytes,2,opt,name=process,proto3,oneof"`
+}
+
+func (*GetReply_Error) isGetReply_Response() {}
+
+func (*GetReply_Process) isGetReply_Response() {}
+
 var File_pb_processmanager_proto protoreflect.FileDescriptor
 
 var file_pb_processmanager_proto_rawDesc = []byte{
@@ -727,7 +855,17 @@ var file_pb_processmanager_proto_rawDesc = []byte{
 	0x79, 0x12, 0x28, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
 	0x32, 0x0d, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x48,
 	0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x88, 0x01, 0x01, 0x42, 0x08, 0x0a, 0x06, 0x5f,
-	0x65, 0x72, 0x72, 0x6f, 0x72, 0x32, 0xb4, 0x03, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x26, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x22, 0x76, 0x0a,
+	0x08, 0x47, 0x65, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x25, 0x0a, 0x05, 0x65, 0x72, 0x72,
+	0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0d, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f,
+	0x6e, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x48, 0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72,
+	0x12, 0x37, 0x0a, 0x07, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x2e, 0x50, 0x72, 0x6f, 0x63,
+	0x65, 0x73, 0x73, 0x49, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x48, 0x00,
+	0x52, 0x07, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x42, 0x0a, 0x0a, 0x08, 0x72, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xf3, 0x03, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
 	0x73, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x12, 0x43, 0x0a, 0x05, 0x53, 0x74, 0x61, 0x72,
 	0x74, 0x12, 0x1c, 0x2e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x6d, 0x61, 0x6e, 0x61, 0x67,
 	0x65, 0x72, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
@@ -754,10 +892,14 @@ var file_pb_processmanager_proto_rawDesc = []byte{
 	0x2e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x2e,
 	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e,
 	0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x2e, 0x52,
-	0x65, 0x6d, 0x6f, 0x76, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x42, 0x1f, 0x5a, 0x1d,
-	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x6c, 0x65, 0x78, 0x6e,
-	0x7a, 0x61, 0x72, 0x6f, 0x76, 0x2f, 0x67, 0x6f, 0x66, 0x75, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x6d, 0x6f, 0x76, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x3d, 0x0a, 0x03,
+	0x47, 0x65, 0x74, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x6d, 0x61, 0x6e,
+	0x61, 0x67, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x18, 0x2e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72,
+	0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x42, 0x1f, 0x5a, 0x1d, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x6c, 0x65, 0x78, 0x6e, 0x7a,
+	0x61, 0x72, 0x6f, 0x76, 0x2f, 0x67, 0x6f, 0x66, 0x75, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -772,7 +914,7 @@ func file_pb_processmanager_proto_rawDescGZIP() []byte {
 	return file_pb_processmanager_proto_rawDescData
 }
 
-var file_pb_processmanager_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_pb_processmanager_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_pb_processmanager_proto_goTypes = []interface{}{
 	(*StartRequest)(nil),          // 0: processmanager.StartRequest
 	(*StartReply)(nil),            // 1: processmanager.StartReply
@@ -786,40 +928,46 @@ var file_pb_processmanager_proto_goTypes = []interface{}{
 	(*UpdateReply)(nil),           // 9: processmanager.UpdateReply
 	(*RemoveRequest)(nil),         // 10: processmanager.RemoveRequest
 	(*RemoveReply)(nil),           // 11: processmanager.RemoveReply
-	(*ProcessConfiguration)(nil),  // 12: process.ProcessConfiguration
-	(*Error)(nil),                 // 13: common.Error
-	(*ProcessInformation)(nil),    // 14: process.ProcessInformation
-	(*fieldmaskpb.FieldMask)(nil), // 15: google.protobuf.FieldMask
+	(*GetRequest)(nil),            // 12: processmanager.GetRequest
+	(*GetReply)(nil),              // 13: processmanager.GetReply
+	(*ProcessConfiguration)(nil),  // 14: process.ProcessConfiguration
+	(*Error)(nil),                 // 15: common.Error
+	(*ProcessInformation)(nil),    // 16: process.ProcessInformation
+	(*fieldmaskpb.FieldMask)(nil), // 17: google.protobuf.FieldMask
 }
 var file_pb_processmanager_proto_depIdxs = []int32{
-	12, // 0: processmanager.StartRequest.configuration:type_name -> process.ProcessConfiguration
-	13, // 1: processmanager.StartReply.error:type_name -> common.Error
-	14, // 2: processmanager.StartReply.process:type_name -> process.ProcessInformation
-	14, // 3: processmanager.ListReply.processes:type_name -> process.ProcessInformation
-	13, // 4: processmanager.RestartReply.error:type_name -> common.Error
-	13, // 5: processmanager.StopReply.error:type_name -> common.Error
-	12, // 6: processmanager.UpdateRequest.configuration:type_name -> process.ProcessConfiguration
-	15, // 7: processmanager.UpdateRequest.update_mask:type_name -> google.protobuf.FieldMask
-	13, // 8: processmanager.UpdateReply.error:type_name -> common.Error
-	14, // 9: processmanager.UpdateReply.process:type_name -> process.ProcessInformation
-	13, // 10: processmanager.RemoveReply.error:type_name -> common.Error
-	0,  // 11: processmanager.ProcessManager.Start:input_type -> processmanager.StartRequest
-	2,  // 12: processmanager.ProcessManager.List:input_type -> processmanager.ListRequest
-	4,  // 13: processmanager.ProcessManager.Restart:input_type -> processmanager.RestartRequest
-	6,  // 14: processmanager.ProcessManager.Stop:input_type -> processmanager.StopRequest
-	8,  // 15: processmanager.ProcessManager.Update:input_type -> processmanager.UpdateRequest
-	10, // 16: processmanager.ProcessManager.Remove:input_type -> processmanager.RemoveRequest
-	1,  // 17: processmanager.ProcessManager.Start:output_type -> processmanager.StartReply
-	3,  // 18: processmanager.ProcessManager.List:output_type -> processmanager.ListReply
-	5,  // 19: processmanager.ProcessManager.Restart:output_type -> processmanager.RestartReply
-	7,  // 20: processmanager.ProcessManager.Stop:output_type -> processmanager.StopReply
-	9,  // 21: processmanager.ProcessManager.Update:output_type -> processmanager.UpdateReply
-	11, // 22: processmanager.ProcessManager.Remove:output_type -> processmanager.RemoveReply
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	14, // 0: processmanager.StartRequest.configuration:type_name -> process.ProcessConfiguration
+	15, // 1: processmanager.StartReply.error:type_name -> common.Error
+	16, // 2: processmanager.StartReply.process:type_name -> process.ProcessInformation
+	16, // 3: processmanager.ListReply.processes:type_name -> process.ProcessInformation
+	15, // 4: processmanager.RestartReply.error:type_name -> common.Error
+	15, // 5: processmanager.StopReply.error:type_name -> common.Error
+	14, // 6: processmanager.UpdateRequest.configuration:type_name -> process.ProcessConfiguration
+	17, // 7: processmanager.UpdateRequest.update_mask:type_name -> google.protobuf.FieldMask
+	15, // 8: processmanager.UpdateReply.error:type_name -> common.Error
+	16, // 9: processmanager.UpdateReply.process:type_name -> process.ProcessInformation
+	15, // 10: processmanager.RemoveReply.error:type_name -> common.Error
+	15, // 11: processmanager.GetReply.error:type_name -> common.Error
+	16, // 12: processmanager.GetReply.process:type_name -> process.ProcessInformation
+	0,  // 13: processmanager.ProcessManager.Start:input_type -> processmanager.StartRequest
+	2,  // 14: processmanager.ProcessManager.List:input_type -> processmanager.ListRequest
+	4,  // 15: processmanager.ProcessManager.Restart:input_type -> processmanager.RestartRequest
+	6,  // 16: processmanager.ProcessManager.Stop:input_type -> processmanager.StopRequest
+	8,  // 17: processmanager.ProcessManager.Update:input_type -> processmanager.UpdateRequest
+	10, // 18: processmanager.ProcessManager.Remove:input_type -> processmanager.RemoveRequest
+	12, // 19: processmanager.ProcessManager.Get:input_type -> processmanager.GetRequest
+	1,  // 20: processmanager.ProcessManager.Start:output_type -> processmanager.StartReply
+	3,  // 21: processmanager.ProcessManager.List:output_type -> processmanager.ListReply
+	5,  // 22: processmanager.ProcessManager.Restart:output_type -> processmanager.RestartReply
+	7,  // 23: processmanager.ProcessManager.Stop:output_type -> processmanager.StopReply
+	9,  // 24: processmanager.ProcessManager.Update:output_type -> processmanager.UpdateReply
+	11, // 25: processmanager.ProcessManager.Remove:output_type -> processmanager.RemoveReply
+	13, // 26: processmanager.ProcessManager.Get:output_type -> processmanager.GetReply
+	20, // [20:27] is the sub-list for method output_type
+	13, // [13:20] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_pb_processmanager_proto_init() }
@@ -974,6 +1122,30 @@ func file_pb_processmanager_proto_init() {
 				return nil
 			}
 		}
+		file_pb_processmanager_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pb_processmanager_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_pb_processmanager_proto_msgTypes[1].OneofWrappers = []interface{}{
 		(*StartReply_Error)(nil),
@@ -986,13 +1158,17 @@ func file_pb_processmanager_proto_init() {
 		(*UpdateReply_Process)(nil),
 	}
 	file_pb_processmanager_proto_msgTypes[11].OneofWrappers = []interface{}{}
+	file_pb_processmanager_proto_msgTypes[13].OneofWrappers = []interface{}{
+		(*GetReply_Error)(nil),
+		(*GetReply_Process)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pb_processmanager_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

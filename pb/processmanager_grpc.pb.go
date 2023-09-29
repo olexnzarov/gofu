@@ -28,6 +28,7 @@ type ProcessManagerClient interface {
 	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopReply, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateReply, error)
 	Remove(ctx context.Context, in *RemoveRequest, opts ...grpc.CallOption) (*RemoveReply, error)
+	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error)
 }
 
 type processManagerClient struct {
@@ -92,6 +93,15 @@ func (c *processManagerClient) Remove(ctx context.Context, in *RemoveRequest, op
 	return out, nil
 }
 
+func (c *processManagerClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error) {
+	out := new(GetReply)
+	err := c.cc.Invoke(ctx, "/processmanager.ProcessManager/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProcessManagerServer is the server API for ProcessManager service.
 // All implementations must embed UnimplementedProcessManagerServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type ProcessManagerServer interface {
 	Stop(context.Context, *StopRequest) (*StopReply, error)
 	Update(context.Context, *UpdateRequest) (*UpdateReply, error)
 	Remove(context.Context, *RemoveRequest) (*RemoveReply, error)
+	Get(context.Context, *GetRequest) (*GetReply, error)
 	mustEmbedUnimplementedProcessManagerServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedProcessManagerServer) Update(context.Context, *UpdateRequest)
 }
 func (UnimplementedProcessManagerServer) Remove(context.Context, *RemoveRequest) (*RemoveReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
+}
+func (UnimplementedProcessManagerServer) Get(context.Context, *GetRequest) (*GetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedProcessManagerServer) mustEmbedUnimplementedProcessManagerServer() {}
 
@@ -248,6 +262,24 @@ func _ProcessManager_Remove_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProcessManager_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProcessManagerServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/processmanager.ProcessManager/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProcessManagerServer).Get(ctx, req.(*GetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProcessManager_ServiceDesc is the grpc.ServiceDesc for ProcessManager service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var ProcessManager_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Remove",
 			Handler:    _ProcessManager_Remove_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _ProcessManager_Get_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

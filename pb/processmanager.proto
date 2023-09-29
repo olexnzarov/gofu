@@ -61,6 +61,17 @@ message RemoveReply {
   optional common.Error error = 1;
 }
 
+message GetRequest {
+  string process = 1;
+}
+
+message GetReply {
+  oneof response {
+    common.Error error = 1;
+    process.ProcessInformation process = 2;
+  }
+}
+
 service ProcessManager {
   rpc Start(StartRequest) returns (StartReply) {}
   rpc List(ListRequest) returns (ListReply) {}
@@ -68,4 +79,5 @@ service ProcessManager {
   rpc Stop(StopRequest) returns (StopReply) {}
   rpc Update(UpdateRequest) returns (UpdateReply) {}
   rpc Remove(RemoveRequest) returns (RemoveReply) {}
+  rpc Get(GetRequest) returns (GetReply) {}
 }

@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/olexnzarov/gofu/internal/gofucli/commands/inspect"
 	"github.com/olexnzarov/gofu/internal/gofucli/commands/ps"
 	"github.com/olexnzarov/gofu/internal/gofucli/commands/restart"
 	"github.com/olexnzarov/gofu/internal/gofucli/commands/rm"
@@ -17,4 +18,5 @@ func Include(root *cobra.Command) {
 	root.AddCommand(ps.Command)
 	root.AddCommand(rm.Command)
 	root.AddCommand(update.Command)
+	root.AddCommand(inspect.Command)
 }
