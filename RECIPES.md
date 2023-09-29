@@ -1,6 +1,6 @@
 # Recipes <!-- omit from toc -->
 
-This page contains descriptions of **gofu** commands and practical examples of how to use them. It aims to help you start cooking with **gofu** with little experience. If you have a use case not specified here, create a [pull request](https://github.com/olexnzarov/gofu/pulls) and help us improve this documentation! 
+This page contains descriptions of gofu commands and practical examples of how to use them. It aims to help you start cooking with gofu with little experience. If you have a use case not specified here, create a [pull request](https://github.com/olexnzarov/gofu/pulls) and help us improve this documentation! 
 
 - [Start a process - gofu run](#start-a-process---gofu-run)
   - [Start a process that will persist throughout system restarts](#start-a-process-that-will-persist-throughout-system-restarts)
