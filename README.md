@@ -6,6 +6,8 @@
 
 ## Usage
 
+We highly encourage you to check out our [recipes](./RECIPES.md) for more detailed descriptions and advanced examples of using **gofu**.
+
 ```sh
 gofu run -n $NAME $COMMAND  # to create a named process 
 gofu run -s $COMMAND        # to create a persistent process
@@ -23,21 +25,19 @@ gofu restart $NAME  # to restart the process
 gofu rm $NAME       # to remove the process from the daemon
 ```
 
-Check out [recipes](./RECIPES.md) for more advanced examples on how to use **gofu**.
-
 ## Packages
 
-These packages help you interact with gofu, providing client interfaces and utility functions:
+These packages help you interact with **gofu**, providing client interfaces and utility functions:
 
 - [gofu](./pkg/gofu)
 - [envfmt](./pkg/envfmt)
 
-These libraries were developed for use in gofu, but you can use them in your projects as standalone packages:
+These libraries were developed for use in **gofu**, but you can use them in your projects as standalone packages:
 
 - [protomask](https://github.com/olexnzarov/protomask)
 - [processinfo](https://github.com/olexnzarov/processinfo) 
 
 ## License
 
-gofu is available under the [MIT](./LICENSE) license, allowing for free use, modification, and distribution.
+**gofu** is available under the [MIT](./LICENSE) license, allowing for free use, modification, and distribution.
 
