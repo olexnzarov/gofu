@@ -21,7 +21,7 @@ func ToProcessInformation(process *procmanager.ManagedProcess) *pb.ProcessInform
 	processData := process.GetData()
 	info := &pb.ProcessInformation{
 		Id:            processData.Id,
-		Pid:           int64(process.GetProcessId()),
+		Pid:           int64(process.GetPid()),
 		Configuration: processData.Configuration,
 		Status:        process.GetStatus(),
 		ExitState:     ToExitState(process),

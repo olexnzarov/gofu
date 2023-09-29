@@ -16,7 +16,7 @@ func (s *Service) StartPersistent() error {
 	s.log.Infof("Starting %d persistent processes...", len(processes))
 
 	for _, data := range processes {
-		s.log.Infof("Starting process '%s' (%s)", data.Configuration.Name, data.Id)
+		s.log.Infof("Starting the process '%s' (%s)", data.Configuration.Name, data.Id)
 		go s.manager.Create(data)
 	}
 

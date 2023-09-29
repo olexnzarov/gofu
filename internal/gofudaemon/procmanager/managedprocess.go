@@ -8,9 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/olexnzarov/gofu/internal/logger"
 	"github.com/olexnzarov/gofu/internal/process"
-	"github.com/olexnzarov/gofu/pkg/gofu"
 )
 
 const (
@@ -21,246 +19,190 @@ const (
 )
 
 type ManagedProcess struct {
-	log              logger.Logger
-	outOptions       process.OutOptions
-	data             *ProcessData
-	dataMutex        *sync.RWMutex
-	process          *process.Process
-	processMutex     *sync.Mutex
+	manager    *Manager
+	outOptions process.OutOptions
+
+	data      *ProcessData
+	dataMutex *sync.RWMutex
+
+	currentProcess *process.Process
+	processMutex   *sync.Mutex
+
 	interrupted      bool
 	interruptChannel chan interface{}
 	interruptMutex   *sync.Mutex
+
 	autoRestartTries atomic.Uint32
 }
 
-func NewManagedProcess(log logger.Logger, directories *gofu.Directories, data *ProcessData) *ManagedProcess {
+func NewManagedProcess(manager *Manager, data *ProcessData) *ManagedProcess {
 	return &ManagedProcess{
-		log:              log,
+		manager:          manager,
 		data:             data,
 		processMutex:     &sync.Mutex{},
 		dataMutex:        &sync.RWMutex{},
 		interruptMutex:   &sync.Mutex{},
 		interruptChannel: make(chan interface{}),
-		outOptions:       process.NewOutOptions(directories.LogDirectory, data.Id),
+		outOptions:       process.NewOutOptions(manager.directories.LogDirectory, data.Id),
 	}
 }
 
-func (p *ManagedProcess) String() string {
-	return fmt.Sprintf("Process '%s'", p.data.Configuration.Name)
+func (mp *ManagedProcess) String() string {
+	return fmt.Sprintf("ManagedProcess{name:'%s'}", mp.data.Configuration.Name)
 }
 
-func (p *ManagedProcess) GetRestarts() uint32 {
-	return p.autoRestartTries.Load()
+func (mp *ManagedProcess) GetRestarts() uint32 {
+	return mp.autoRestartTries.Load()
 }
 
-func (p *ManagedProcess) GetStatus() string {
-	if p.IsRunning() {
+func (mp *ManagedProcess) GetStatus() string {
+	if mp.IsRunning() {
 		return STATUS_RUNNING
 	}
-	if p.canAutoRestart() {
+	if canProcessAutoRestart(mp) {
 		return STATUS_RESTARTING
 	}
-	if code, _, _ := p.GetExitState(); code > 0 {
+	if code, _, _ := mp.GetExitState(); code > 0 {
 		return STATUS_FAILED
 	}
 	return STATUS_STOPPED
 }
 
-func (p *ManagedProcess) GetRunningProcess() (*process.Process, error) {
-	if p.process == nil {
+func (mp *ManagedProcess) GetRunningProcess() (*process.Process, error) {
+	if mp.currentProcess == nil {
 		return nil, errors.New("process is not running")
 	}
-	return p.process, nil
+	return mp.currentProcess, nil
 }
 
-func (p *ManagedProcess) GetInnerRunningProcess() (*os.Process, error) {
-	process, err := p.GetRunningProcess()
+func (mp *ManagedProcess) GetInnerRunningProcess() (*os.Process, error) {
+	process, err := mp.GetRunningProcess()
 	if err != nil {
 		return nil, err
 	}
 	return process.Inner(), nil
 }
 
-func (p *ManagedProcess) GetProcessId() int {
-	process, err := p.GetInnerRunningProcess()
+func (mp *ManagedProcess) GetPid() int {
+	process, err := mp.GetInnerRunningProcess()
 	if err != nil {
 		return -1
 	}
 	return process.Pid
 }
 
-func (p *ManagedProcess) GetId() string {
-	return p.data.Id
+func (mp *ManagedProcess) GetId() string {
+	return mp.data.Id
 }
 
-func (p *ManagedProcess) GetStdoutPath() string {
-	return p.outOptions.Stdout
+func (mp *ManagedProcess) GetStdoutPath() string {
+	return mp.outOptions.Stdout
 }
 
-func (p *ManagedProcess) GetData() *ProcessData {
-	p.dataMutex.RLock()
-	defer p.dataMutex.RUnlock()
-	return p.data
+func (mp *ManagedProcess) GetData() *ProcessData {
+	mp.dataMutex.RLock()
+	defer mp.dataMutex.RUnlock()
+	return mp.data
 }
 
-func (p *ManagedProcess) GetExitState() (int, time.Time, error) {
-	if p.process == nil {
+func (mp *ManagedProcess) GetExitState() (int, time.Time, error) {
+	if mp.currentProcess == nil {
 		return 0, time.Time{}, nil
 	}
-	return p.process.GetExitState()
+	return mp.currentProcess.GetExitState()
 }
 
-func (p *ManagedProcess) IsRunning() bool {
-	_, _, err := p.GetExitState()
+func (mp *ManagedProcess) IsRunning() bool {
+	_, _, err := mp.GetExitState()
 	return err != nil
 }
 
-func (p *ManagedProcess) waitWithInterrupt(duration time.Duration) {
-	waitChannel := make(chan interface{})
-	go func() {
-		time.Sleep(duration)
-		waitChannel <- nil
-	}()
-
-	select {
-	case <-p.interruptChannel:
-	case <-waitChannel:
-	}
-}
-
-func (p *ManagedProcess) canAutoRestart() bool {
-	config := p.GetData().Configuration
-	if p.interrupted || config.RestartPolicy == nil || !config.RestartPolicy.AutoRestart {
-		return false
-	}
-	return config.RestartPolicy.MaxRetries == 0 || p.autoRestartTries.Load() < config.RestartPolicy.MaxRetries
-}
-
-func (p *ManagedProcess) onProcessExit(process *process.Process, exitCode int) {
-	p.log.Infof("%s: pid=%d exited with code %d", p, process.Inner().Pid, exitCode)
-
-	p.processMutex.Lock()
-	defer p.processMutex.Unlock()
-
-	// Make sure that it's possible to manually kill the process and replace it with a new one.
-	// For example, it's necessary for the Restart function.
-	if p.process.Inner().Pid != process.Inner().Pid {
-		return
+func (mp *ManagedProcess) spawn() (*process.Process, error) {
+	if mp.IsRunning() {
+		return nil, errors.New("process is already running")
 	}
 
-	if p.canAutoRestart() {
-		p.log.Infof("%s: automatic restart is enabled", p)
-
-		for p.canAutoRestart() {
-			p.autoRestartTries.Add(1)
-
-			delay := p.data.GetRestartDelay()
-			p.log.Infof(
-				"%s: trying to restart in %s (%d/%d)",
-				p, delay, p.autoRestartTries.Load(),
-				p.data.GetRestartPolicy().MaxRetries,
-			)
-
-			p.waitWithInterrupt(delay)
-
-			if p.interrupted {
-				p.log.Infof("%s: process was interrupted, canceling the autorestart", p)
-				return
-			}
-
-			err := p.spawn()
-			if err == nil {
-				return
-			}
-		}
-
-		p.interrupt(true)
-		p.log.Infof("%s: failed to automatically restart")
-	} else {
-		p.interrupt(true)
-	}
-}
-
-func (p *ManagedProcess) spawn() error {
-	if p.IsRunning() {
-		return errors.New("process is already running")
-	}
-
-	p.log.Infof("%s: spawning a process...", p)
-
-	p.dataMutex.RLock()
+	mp.dataMutex.RLock()
 	startOptions := process.StartOptions{
-		Out:         p.outOptions,
-		Command:     p.data.Configuration.Command,
-		Arguments:   p.data.Configuration.Arguments,
-		Environment: p.data.Configuration.Environment,
+		Out:         mp.outOptions,
+		Command:     mp.data.Configuration.Command,
+		Arguments:   mp.data.Configuration.Arguments,
+		Environment: mp.data.Configuration.Environment,
 	}
-	p.dataMutex.RUnlock()
+	mp.dataMutex.RUnlock()
 
 	process, exit, err := process.Start(startOptions)
+	mp.manager.Event.OnProcessSpawn.EmitAsync(ProcessSpawnEvent{Process: mp, Spawned: process, Error: err})
 	if err != nil {
-		p.log.Infof("%s: failed to spawn a process: %s", p, err)
-		return err
+		return nil, err
 	}
-
-	p.log.Infof("%s: spawned a process pid=%d", p, process.Inner().Pid)
-	p.process = process
+	mp.currentProcess = process
 
 	go func() {
 		exitCode := <-exit
-		p.onProcessExit(process, exitCode)
+		mp.manager.Event.OnProcessExit.Emit(ProcessExitEvent{Process: mp, Exited: process, ExitCode: exitCode})
 	}()
 
-	return nil
+	return process, nil
 }
 
-// safeSpawn is a thread-safe version of "spawn".
-func (p *ManagedProcess) safeSpawn() error {
-	p.processMutex.Lock()
-	defer p.processMutex.Unlock()
-	return p.spawn()
+// safeSpawn is a thread-safe version of "spawn"
+func (mp *ManagedProcess) safeSpawn() (*process.Process, error) {
+	mp.processMutex.Lock()
+	defer mp.processMutex.Unlock()
+	return mp.spawn()
 }
 
-func (p *ManagedProcess) interrupt(interrupted bool) {
-	p.interruptMutex.Lock()
-	defer p.interruptMutex.Unlock()
+func (mp *ManagedProcess) interrupt(interrupted bool) {
+	mp.interruptMutex.Lock()
+	defer mp.interruptMutex.Unlock()
+
 	if interrupted {
-		if p.interruptChannel != nil {
+		if mp.interruptChannel != nil {
 			select {
-			case p.interruptChannel <- nil:
+			case mp.interruptChannel <- nil:
 			default:
 			}
-			close(p.interruptChannel)
-			p.interruptChannel = nil
+			close(mp.interruptChannel)
+			mp.interruptChannel = nil
 		}
 	} else {
-		p.interruptChannel = make(chan interface{})
+		mp.interruptChannel = make(chan interface{})
 	}
-	p.interrupted = interrupted
+
+	mp.interrupted = interrupted
 }
 
-func (p *ManagedProcess) Stop() error {
-	p.interrupt(true)
-	p.processMutex.Lock()
-	defer p.processMutex.Unlock()
-	if !p.IsRunning() {
+func (mp *ManagedProcess) Stop() error {
+	mp.interrupt(true)
+	mp.processMutex.Lock()
+	defer mp.processMutex.Unlock()
+
+	if !mp.IsRunning() {
 		return nil
 	}
-	p.log.Infof("%s: stopping the process", p)
-	return p.process.Close()
+
+	return mp.currentProcess.Close()
 }
 
-func (p *ManagedProcess) Restart() error {
-	p.interrupt(true)
-	p.processMutex.Lock()
-	defer p.processMutex.Unlock()
-	p.log.Infof("%s: restarting the process", p)
-	p.autoRestartTries.Store(0)
-	p.interrupt(false)
-	if p.IsRunning() {
-		p.log.Infof("%s: killing pid=%d", p, p.GetProcessId())
-		p.process.Close()
-		p.process.Inner().Wait()
+func (mp *ManagedProcess) Restart() error {
+	mp.interrupt(true)
+	mp.processMutex.Lock()
+	defer mp.processMutex.Unlock()
+
+	mp.autoRestartTries.Store(0)
+	mp.interrupt(false)
+
+	event := ProcessForceRestartEvent{
+		Process:    mp,
+		WasRunning: mp.IsRunning(),
 	}
-	return p.spawn()
+	if event.WasRunning {
+		mp.currentProcess.Close()
+		mp.currentProcess.Inner().Wait()
+	}
+	event.Spawned, event.Error = mp.spawn()
+	go mp.manager.Event.OnProcessForceRestart.Emit(event)
+
+	return event.Error
 }

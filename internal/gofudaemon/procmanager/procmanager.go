@@ -8,6 +8,7 @@ import (
 
 type Manager struct {
 	Processes   *ProcessList
+	Event       *Events
 	log         logger.Logger
 	directories *gofu.Directories
 }
@@ -17,14 +18,16 @@ func New(log logger.Logger, directories *gofu.Directories) *Manager {
 		Processes:   NewProcessList(),
 		log:         log,
 		directories: directories,
+		Event:       newEvents(),
 	}
+	manager.subscribe()
 	return manager
 }
 
 func (m *Manager) Create(data *ProcessData) (*ManagedProcess, error) {
 	m.log.Infof("Creating a process: %s", data.Id)
 
-	process := NewManagedProcess(m.log, m.directories, data)
+	process := NewManagedProcess(m, data)
 	if err := m.Processes.add(process); err != nil {
 		return nil, err
 	}
@@ -33,12 +36,12 @@ func (m *Manager) Create(data *ProcessData) (*ManagedProcess, error) {
 	return process, nil
 }
 
-func (r *Manager) Remove(process *ManagedProcess) {
+func (m *Manager) Remove(process *ManagedProcess) {
 	process.Stop()
-	r.Processes.remove(process)
+	m.Processes.remove(process)
 }
 
-func (r *Manager) UpdateConfiguration(
+func (m *Manager) UpdateConfiguration(
 	process *ManagedProcess,
 	update func(currentConfig *pb.ProcessConfiguration) (*pb.ProcessConfiguration, error),
 ) error {
