@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/olexnzarov/gofu/pkg/output"
+	"github.com/olexnzarov/gofu/internal/output"
 	"github.com/spf13/cobra"
 )
 

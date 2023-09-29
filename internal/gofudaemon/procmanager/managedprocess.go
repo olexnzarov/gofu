@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/olexnzarov/gofu/internal/logger"
+	"github.com/olexnzarov/gofu/internal/process"
 	"github.com/olexnzarov/gofu/pkg/gofu"
-	"github.com/olexnzarov/gofu/pkg/process"
 )
 
 const (
@@ -60,7 +60,7 @@ func (p *ManagedProcess) GetStatus() string {
 	if p.canAutoRestart() {
 		return STATUS_RESTARTING
 	}
-	if code, _ := p.GetExitCode(); code > 0 {
+	if code, _, _ := p.GetExitState(); code > 0 {
 		return STATUS_FAILED
 	}
 	return STATUS_STOPPED
@@ -103,15 +103,15 @@ func (p *ManagedProcess) GetData() *ProcessData {
 	return p.data
 }
 
-func (p *ManagedProcess) GetExitCode() (int, error) {
+func (p *ManagedProcess) GetExitState() (int, time.Time, error) {
 	if p.process == nil {
-		return 0, nil
+		return 0, time.Time{}, nil
 	}
-	return p.process.ExitCode()
+	return p.process.GetExitState()
 }
 
 func (p *ManagedProcess) IsRunning() bool {
-	_, err := p.GetExitCode()
+	_, _, err := p.GetExitState()
 	return err != nil
 }
 

@@ -25,6 +25,7 @@ message ProcessConfiguration {
 message ProcessInformation {
   message ExitState {
     int64 code = 1;
+    google.protobuf.Timestamp exited_at = 2;
   }
   string id = 1;
   int64 pid = 2;
@@ -34,5 +35,4 @@ message ProcessInformation {
   string stdout = 6;
   uint32 restarts = 7;
   optional google.protobuf.Timestamp started_at = 8;
-  optional google.protobuf.Timestamp stopped_at = 9;
 }

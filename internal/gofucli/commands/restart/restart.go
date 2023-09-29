@@ -3,8 +3,8 @@ package restart
 import (
 	"github.com/olexnzarov/gofu/internal/gofucli/utilities"
 	"github.com/olexnzarov/gofu/internal/gofucli/utilities/outputs"
+	"github.com/olexnzarov/gofu/internal/output"
 	"github.com/olexnzarov/gofu/pb"
-	"github.com/olexnzarov/gofu/pkg/output"
 	"github.com/spf13/cobra"
 )
 

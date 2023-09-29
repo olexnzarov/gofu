@@ -38,7 +38,7 @@ type Process struct {
 	options   *StartOptions
 	exitCode  *int
 	startTime time.Time
-	stopTime  time.Time
+	exitTime  time.Time
 }
 
 func NewOutOptions(outDirectory string, id string) OutOptions {
@@ -95,14 +95,14 @@ func (p *Process) StoppedAt() (time.Time, error) {
 	if p.exitCode == nil {
 		return time.Time{}, ErrProcessRunning
 	}
-	return p.stopTime, nil
+	return p.exitTime, nil
 }
 
-func (p *Process) ExitCode() (int, error) {
+func (p *Process) GetExitState() (int, time.Time, error) {
 	if p.exitCode == nil {
-		return 0, ErrProcessRunning
+		return 0, time.Time{}, ErrProcessRunning
 	}
-	return *p.exitCode, nil
+	return *p.exitCode, p.exitTime, nil
 }
 
 // Close kills the process and releases all associated resources.
@@ -177,7 +177,7 @@ func Start(options StartOptions) (*Process, <-chan int, error) {
 			code = state.ExitCode()
 		}
 		process.exitCode = &code
-		process.stopTime = time.Now()
+		process.exitTime = time.Now()
 		exitChannel <- *process.exitCode
 		close(exitChannel)
 	}()

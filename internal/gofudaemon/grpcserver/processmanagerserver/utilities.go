@@ -7,12 +7,13 @@ import (
 )
 
 func ToExitState(p *procmanager.ManagedProcess) *pb.ProcessInformation_ExitState {
-	code, err := p.GetExitCode()
+	code, exitedAt, err := p.GetExitState()
 	if err != nil {
 		return nil
 	}
 	return &pb.ProcessInformation_ExitState{
-		Code: int64(code),
+		Code:     int64(code),
+		ExitedAt: timestamppb.New(exitedAt),
 	}
 }
 
@@ -27,14 +28,10 @@ func ToProcessInformation(process *procmanager.ManagedProcess) *pb.ProcessInform
 		Stdout:        process.GetStdoutPath(),
 		Restarts:      process.GetRestarts(),
 		StartedAt:     nil,
-		StoppedAt:     nil,
 	}
 
 	if inner, err := process.GetRunningProcess(); err == nil {
 		info.StartedAt = timestamppb.New(inner.StartedAt())
-		if stoppedAt, err := inner.StoppedAt(); err == nil {
-			info.StoppedAt = timestamppb.New(stoppedAt)
-		}
 	}
 
 	return info

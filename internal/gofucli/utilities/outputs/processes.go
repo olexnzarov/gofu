@@ -32,8 +32,8 @@ func (pto *ProcessTableOutput) Text() string {
 	rows := make([]table.Row, 0, len(pto.processes))
 	for _, p := range pto.processes {
 		when := "unknown"
-		if p.StoppedAt != nil {
-			when = fmt.Sprintf("Stopped %s", humanize.Time(p.StoppedAt.AsTime()))
+		if p.ExitState != nil {
+			when = fmt.Sprintf("Stopped %s", humanize.Time(p.ExitState.ExitedAt.AsTime()))
 		} else if p.StartedAt != nil {
 			when = fmt.Sprintf("Started %s", humanize.Time(p.StartedAt.AsTime()))
 		}
