@@ -83,7 +83,7 @@ var Command = &cobra.Command{
 		if len(update.mask) == 0 {
 			output.Add(
 				"error",
-				outputs.Error("", "you must specify at least one flag for the update to be performed"),
+				outputs.Fatal("you must specify at least one flag for the update to be performed"),
 			)
 			return
 		}
@@ -99,18 +99,8 @@ var Command = &cobra.Command{
 				UpdateMask:    &fieldmaskpb.FieldMask{Paths: update.mask},
 			},
 		)
-		if err != nil {
-			output.Add(
-				"error",
-				outputs.Error("failed to update the process", err),
-			)
-			return
-		}
-		if reply.GetError() != nil {
-			output.Add(
-				"error",
-				outputs.Error("failed to update the process", reply.GetError()),
-			)
+		if out := outputs.ToError(reply, err); out != nil {
+			output.Add("error", out)
 			return
 		}
 

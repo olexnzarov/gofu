@@ -30,10 +30,7 @@ var Command = &cobra.Command{
 			&pb.ListRequest{},
 		)
 		if err != nil {
-			output.Add(
-				"error",
-				outputs.Error("failed to get a list of processes", err),
-			)
+			output.Add("error", outputs.Fatal(err))
 			return
 		}
 

@@ -60,9 +60,11 @@ func (o *Output) Text() (string, error) {
 	defer o.writersMutex.RUnlock()
 
 	builder := strings.Builder{}
-	for _, iw := range o.writers {
+	for i, iw := range o.writers {
 		builder.WriteString(iw.writer.Text())
-		builder.WriteString("\n")
+		if i != len(o.writers)-1 {
+			builder.WriteString("\n")
+		}
 	}
 	return builder.String(), nil
 }

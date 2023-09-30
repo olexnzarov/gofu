@@ -31,18 +31,8 @@ var Command = &cobra.Command{
 				Process: args[0],
 			},
 		)
-		if err != nil {
-			output.Add(
-				"error",
-				outputs.Error("failed to restart the process", err),
-			)
-			return
-		}
-		if reply.GetError() != nil {
-			output.Add(
-				"error",
-				outputs.Error("failed to restart the process", reply.GetError()),
-			)
+		if out := outputs.ToError(reply, err); out != nil {
+			output.Add("error", out)
 			return
 		}
 

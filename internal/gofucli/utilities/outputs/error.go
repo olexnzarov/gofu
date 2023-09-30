@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/olexnzarov/gofu/internal/gofucli/utilities"
+	"github.com/olexnzarov/gofu/internal/output"
 	"github.com/olexnzarov/gofu/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,9 +45,9 @@ func Fatal(err interface{}) *ErrorOutput {
 
 func (e *ErrorOutput) Error() string {
 	if e.description == "" {
-		return fmt.Sprintf("Error: %s", e.cause)
+		return fmt.Sprintf("gofu error: %s", e.cause)
 	}
-	return fmt.Sprintf("Error: %s\nCause: %s", e.description, e.cause)
+	return fmt.Sprintf("gofu: %s\ncause: %s", e.description, e.cause)
 }
 
 func (e *ErrorOutput) String() string {
@@ -59,4 +60,18 @@ func (e *ErrorOutput) Text() string {
 
 func (e *ErrorOutput) Object() interface{} {
 	return e.String()
+}
+
+type ReplyError interface {
+	GetError() *pb.Error
+}
+
+func ToError(reply ReplyError, err error) output.OutputWriter {
+	if err != nil {
+		return Fatal(err)
+	}
+	if reply.GetError() != nil {
+		return Fatal(reply.GetError().Message)
+	}
+	return nil
 }
