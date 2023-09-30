@@ -1,6 +1,6 @@
 <picture><img src=".github/content/banner.png" /></picture>
 
-**gofu** is a process manager for any application you can think of. It allows you to keep processes alive, manage their environment, balance the load, schedule different tasks to run on system startup, and much more. It also provides an option to start a local web interface to manage the processes more easily.
+**gofu** is a process manager for any application you can think of. It allows you to keep processes alive, manage their environment, schedule different tasks to run on system startup, and much more. It also provides an option to start a local web interface to manage the processes more easily.
 
 **Important:** Work in progress. Some features may not work correctly or even not exist at the moment. Use at your discretion.
 
@@ -9,20 +9,13 @@
 We highly encourage you to check out our [recipes](./RECIPES.md) for more detailed descriptions and advanced examples of using gofu.
 
 ```sh
-gofu run -n $NAME $COMMAND  # to create a named process 
-gofu run -s $COMMAND        # to create a persistent process
-```
-
-```sh
-gofu ps               # to list all processes
-gofu ps -o prettyjson # to list all processes in formatted json
-gofu inspect $NAME    # to get information about the process
-```
-
-```sh
-gofu stop $NAME     # to stop the running process
-gofu restart $NAME  # to restart the process
-gofu rm $NAME       # to remove the process from the daemon
+gofu run        # start a gofu-managed process
+gofu inspect    # get information about a process
+gofu stop       # stop a process
+gofu restart    # restart a process
+gofu update     # update a process
+gofu rm         # remove a process
+gofu ps         # list all processes
 ```
 
 ## Packages
