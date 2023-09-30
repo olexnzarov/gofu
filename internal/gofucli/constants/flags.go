@@ -17,4 +17,10 @@ const (
 	FLAG_RESTART             = "restart"
 	FLAG_RESTART_MAX_RETRIES = "max-retries"
 	FLAG_RESTART_DELAY       = "restart-delay"
+
+	FLAG_SHORT_ALWAYS_YES = "y"
+	FLAG_ALWAYS_YES       = "always-yes"
+
+	FLAG_SHORT_FORCE = "f"
+	FLAG_FORCE       = "force"
 )

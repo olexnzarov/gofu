@@ -1,11 +1,19 @@
 package rm
 
 import (
+	"fmt"
+
+	"github.com/olexnzarov/gofu/internal/gofucli/constants"
 	"github.com/olexnzarov/gofu/internal/gofucli/utilities"
 	"github.com/olexnzarov/gofu/internal/gofucli/utilities/outputs"
 	"github.com/olexnzarov/gofu/internal/output"
 	"github.com/olexnzarov/gofu/pb"
 	"github.com/spf13/cobra"
+)
+
+var (
+	force     bool
+	alwaysYes bool
 )
 
 var Command = &cobra.Command{
@@ -21,6 +29,18 @@ var Command = &cobra.Command{
 				outputs.Fatal(err),
 			)
 			return
+		}
+
+		if !alwaysYes {
+			confirmed := utilities.Confirm(
+				fmt.Sprintf(
+					"This command will remove the process '%s'. You will not be able to recover it after it is done.",
+					args[0],
+				),
+			)
+			if !confirmed {
+				return
+			}
 		}
 
 		timeout, cancel := utilities.Timeout()
@@ -42,4 +62,22 @@ var Command = &cobra.Command{
 			outputs.Text("OK"),
 		)
 	}),
+}
+
+func init() {
+	Command.Flags().BoolVarP(
+		&force,
+		constants.FLAG_FORCE,
+		constants.FLAG_SHORT_FORCE,
+		false,
+		"stop the process if it's running",
+	)
+
+	Command.Flags().BoolVarP(
+		&alwaysYes,
+		constants.FLAG_ALWAYS_YES,
+		constants.FLAG_SHORT_ALWAYS_YES,
+		false,
+		"do not ask confirmations",
+	)
 }
