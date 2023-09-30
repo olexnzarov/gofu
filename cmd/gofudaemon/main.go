@@ -34,10 +34,8 @@ func initialize(service *procservice.Service) {
 	go service.StartPersistent()
 }
 
-func main() {
-	flag.Parse()
-
-	fx.New(
+func createApp() *fx.App {
+	return fx.New(
 		fx.Provide(
 			logger.New,
 			gofu.NewDirectories,
@@ -52,5 +50,10 @@ func main() {
 		),
 		fx.Invoke(runDaemon),
 		fx.Invoke(initialize),
-	).Run()
+	)
+}
+
+func main() {
+	flag.Parse()
+	createApp().Run()
 }

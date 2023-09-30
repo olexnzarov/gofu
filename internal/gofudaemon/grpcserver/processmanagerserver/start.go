@@ -6,7 +6,7 @@ import (
 	"github.com/olexnzarov/gofu/pb"
 )
 
-func (s *ProcessManagerServer) Start(ctx context.Context, in *pb.StartRequest) (*pb.StartReply, error) {
+func (s *Server) Start(ctx context.Context, in *pb.StartRequest) (*pb.StartReply, error) {
 	process, err := s.service.CreateProcess(in.Configuration)
 	if err != nil {
 		return &pb.StartReply{

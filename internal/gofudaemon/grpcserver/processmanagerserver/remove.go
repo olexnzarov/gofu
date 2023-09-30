@@ -6,7 +6,7 @@ import (
 	"github.com/olexnzarov/gofu/pb"
 )
 
-func (s *ProcessManagerServer) Remove(ctx context.Context, in *pb.RemoveRequest) (*pb.RemoveReply, error) {
+func (s *Server) Remove(ctx context.Context, in *pb.RemoveRequest) (*pb.RemoveReply, error) {
 	err := s.service.RemoveProcess(in.Process)
 	if err != nil {
 		return &pb.RemoveReply{

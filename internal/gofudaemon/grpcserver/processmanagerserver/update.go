@@ -6,7 +6,7 @@ import (
 	"github.com/olexnzarov/gofu/pb"
 )
 
-func (s *ProcessManagerServer) Update(ctx context.Context, in *pb.UpdateRequest) (*pb.UpdateReply, error) {
+func (s *Server) Update(ctx context.Context, in *pb.UpdateRequest) (*pb.UpdateReply, error) {
 	process, err := s.service.UpdateProcess(in.Process, in.Configuration, in.UpdateMask)
 	if err != nil {
 		return &pb.UpdateReply{

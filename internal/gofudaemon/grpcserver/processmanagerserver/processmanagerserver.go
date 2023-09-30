@@ -7,7 +7,7 @@ import (
 	"github.com/olexnzarov/gofu/pkg/gofu"
 )
 
-type ProcessManagerServer struct {
+type Server struct {
 	pb.UnimplementedProcessManagerServer
 	log         logger.Logger
 	directories *gofu.Directories
@@ -18,8 +18,8 @@ func New(
 	log logger.Logger,
 	directories *gofu.Directories,
 	service *procservice.Service,
-) *ProcessManagerServer {
-	return &ProcessManagerServer{
+) *Server {
+	return &Server{
 		log:         log,
 		directories: directories,
 		service:     service,

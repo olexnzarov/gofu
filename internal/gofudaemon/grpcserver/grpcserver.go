@@ -19,7 +19,7 @@ type Server struct {
 func New(
 	log logger.Logger,
 	config *Config,
-	pms *processmanagerserver.ProcessManagerServer,
+	pms *processmanagerserver.Server,
 ) *Server {
 	server := grpc.NewServer()
 
