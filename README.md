@@ -4,6 +4,13 @@
 
 **Important:** Work in progress. Some features may not work correctly or even not exist at the moment. Use at your discretion.
 
+## Install
+
+```sh
+curl -sf https://gobinaries.com/olexnzarov/gofu/cmd/gofudaemon | sh
+curl -sf https://gobinaries.com/olexnzarov/gofu/cmd/gofu | sh
+```
+
 ## Usage
 
 We highly encourage you to check out our [recipes](./RECIPES.md) for more detailed descriptions and advanced examples of using gofu.
