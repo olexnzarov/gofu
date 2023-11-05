@@ -1,4 +1,4 @@
-package output
+package formatting
 
 import (
 	"encoding/json"
@@ -13,6 +13,7 @@ type OutputWriter interface {
 }
 
 type Output struct {
+	HasError     bool
 	writers      []indexedOutputWriter
 	writersMutex *sync.RWMutex
 }
@@ -31,6 +32,10 @@ func NewOutput() *Output {
 func (o *Output) Add(key string, writer OutputWriter) {
 	o.writersMutex.Lock()
 	defer o.writersMutex.Unlock()
+	switch writer.(type) {
+	case *ErrorOutput:
+		o.HasError = true
+	}
 	o.writers = append(o.writers, indexedOutputWriter{index: key, writer: writer})
 }
 

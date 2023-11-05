@@ -1,4 +1,4 @@
-package outputs
+package formatting
 
 type TextOutput struct {
 	text string

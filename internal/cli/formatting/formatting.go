@@ -1,4 +1,4 @@
-package format
+package formatting
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-func NewTable(header table.Row, rows []table.Row) table.Writer {
+func Table(header table.Row, rows []table.Row) string {
 	tw := table.NewWriter()
 	tw.Style().Format.Header = text.FormatUpper
 	tw.Style().Box = table.StyleBoxRounded
@@ -16,7 +16,7 @@ func NewTable(header table.Row, rows []table.Row) table.Writer {
 	}
 	tw.AppendHeader(header)
 	tw.AppendRows(rows)
-	return tw
+	return tw.Render()
 }
 
 func Truncate(value string, maxLength int) string {

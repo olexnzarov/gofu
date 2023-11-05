@@ -3,10 +3,11 @@ package main
 import (
 	"os"
 
-	"github.com/olexnzarov/gofu/internal/gofucli"
+	"github.com/olexnzarov/gofu/internal/cli/commands"
 )
 
 func main() {
-	exitCode := gofucli.Execute()
+	root := commands.Root()
+	exitCode := commands.Execute(root)
 	os.Exit(exitCode)
 }

@@ -1,10 +1,8 @@
-package outputs
+package formatting
 
 import (
 	"fmt"
 
-	"github.com/olexnzarov/gofu/internal/gofucli/utilities"
-	"github.com/olexnzarov/gofu/internal/output"
 	"github.com/olexnzarov/gofu/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,7 +30,6 @@ func Error(description string, cause interface{}) *ErrorOutput {
 	default:
 		causeText = "unknown"
 	}
-	utilities.SetExitCode(1)
 	return &ErrorOutput{
 		cause:       causeText,
 		description: description,
@@ -66,7 +63,7 @@ type ReplyError interface {
 	GetError() *pb.Error
 }
 
-func ToError(reply ReplyError, err error) output.OutputWriter {
+func ToError(reply ReplyError, err error) OutputWriter {
 	if err != nil {
 		return Fatal(err)
 	}

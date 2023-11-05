@@ -1,4 +1,4 @@
-package outputs
+package formatting
 
 import (
 	"fmt"

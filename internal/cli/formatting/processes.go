@@ -1,11 +1,10 @@
-package outputs
+package formatting
 
 import (
 	"fmt"
 
 	"github.com/dustin/go-humanize"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/olexnzarov/gofu/internal/gofucli/utilities/format"
 	"github.com/olexnzarov/gofu/pb"
 )
 
@@ -42,17 +41,17 @@ func (pto *ProcessTableOutput) Text() string {
 			table.Row{
 				p.Pid,
 				p.Configuration.Name,
-				format.Truncate(processComandWithArguments(p), 30),
+				Truncate(processComandWithArguments(p), 30),
 				when,
 				prettyProcessStatus(p),
 			},
 		)
 	}
 
-	return format.NewTable(
+	return Table(
 		table.Row{"pid", "name", "command", "when", "status"},
 		rows,
-	).Render()
+	)
 }
 
 func (pto *ProcessTableOutput) Object() interface{} {
