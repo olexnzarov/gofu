@@ -92,7 +92,7 @@ func (mp *ManagedProcess) GetPid() int {
 	return process.Pid
 }
 
-func (mp *ManagedProcess) GetId() string {
+func (mp *ManagedProcess) GetID() string {
 	return mp.data.GetID()
 }
 
@@ -103,7 +103,7 @@ func (mp *ManagedProcess) GetStdoutPath() string {
 func (mp *ManagedProcess) GetData() processmanager.ProcessData {
 	mp.dataMutex.RLock()
 	defer mp.dataMutex.RUnlock()
-	return mp.GetData()
+	return mp.data
 }
 
 func (mp *ManagedProcess) GetExitState() (int, time.Time, error) {

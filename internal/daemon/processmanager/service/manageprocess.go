@@ -30,7 +30,7 @@ func (s *Service) RemoveProcess(nameOrPid string) error {
 	}
 	data := process.GetData()
 	if data.GetConfiguration().Persist {
-		if err := s.storage.Delete(process.GetId()); err != nil {
+		if err := s.storage.Delete(process.GetID()); err != nil {
 			return err
 		}
 	}
@@ -58,11 +58,11 @@ func (s *Service) UpdateProcess(nameOrPid string, config *pb.ProcessConfiguratio
 			s.SanitizeProcessConfig(updatedConfig)
 
 			if updatedConfig.Persist {
-				if err := s.storage.Upsert(&managedprocess.ProcessData{Id: process.GetId(), Configuration: updatedConfig}); err != nil {
+				if err := s.storage.Upsert(&managedprocess.ProcessData{Id: process.GetID(), Configuration: updatedConfig}); err != nil {
 					return nil, err
 				}
 			} else if currentConfig.Persist {
-				if err := s.storage.Delete(process.GetId()); err != nil {
+				if err := s.storage.Delete(process.GetID()); err != nil {
 					return nil, err
 				}
 			}

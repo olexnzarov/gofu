@@ -20,9 +20,6 @@ func NewServer(
 ) *Server {
 	server := grpc.NewServer()
 
-	// TODO:
-	//pb.RegisterProcessManagerServer(server, pms)
-
 	return &Server{
 		log:    log,
 		config: config,
