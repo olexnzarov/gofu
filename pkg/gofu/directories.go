@@ -14,9 +14,9 @@ type Directories struct {
 	DataDirectory        string
 }
 
-func NewDirectories() *Directories {
+func NewDirectories() Directories {
 	homeDirectory, _ := os.UserHomeDir()
-	return &Directories{
+	return Directories{
 		HomeDirectory:        homeDirectory,
 		ApplicationDirectory: fmt.Sprintf("%s/.%s", homeDirectory, ApplicationName),
 		LogDirectory:         fmt.Sprintf("%s/.%s/logs", homeDirectory, ApplicationName),
